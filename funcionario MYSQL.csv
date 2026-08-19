@@ -1,0 +1,8 @@
+Field,Type,Null,Key,Default,Extra
+id_funcionario,int,NO,PRI,NULL,auto_increment
+nome_completo,varchar(150),NO,,NULL,
+cpf,varchar(14),YES,UNI,NULL,
+cargo,varchar(50),NO,,NULL,
+especialidade,varchar(50),YES,,NULL,
+telefone,varchar(20),YES,,NULL,
+data_admissao,date,YES,,NULL,

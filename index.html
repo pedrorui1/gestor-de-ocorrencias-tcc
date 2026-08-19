@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestor de Ocorrências Escolares</title>
+    <style>
+        :root { --primary: #2c3e50; --secondary: #34495e; --accent: #3498db; --danger: #e74c3c; --light: #ecf0f1; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--light); margin: 0; padding: 20px; }
+        .container { max-width: 800px; margin: auto; background: white; padding: 25px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        h1 { color: var(--primary); text-align: center; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input, select, textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }
+        button { background: var(--accent); color: white; border: none; padding: 12px 20px; border-radius: 4px; cursor: pointer; width: 100%; font-size: 16px; transition: 0.3s; }
+        button:hover { background: #2980b9; }
+        .lista-ocorrencias { margin-top: 30px; }
+        .item-ocorrencia { background: #f9f9f9; padding: 15px; border-left: 5px solid var(--accent); margin-bottom: 10px; position: relative; border-radius: 0 4px 4px 0; }
+        .item-ocorrencia h3 { margin: 0 0 5px 0; color: var(--secondary); }
+        .item-ocorrencia p { margin: 5px 0; font-size: 14px; color: #555; }
+        .btn-excluir { background: var(--danger); width: auto; padding: 5px 10px; margin-top: 10px; font-size: 12px; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        .data { font-style: italic; font-size: 12px; color: #888; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>📝 Registro de Ocorrências</h1>
+    
+    <div id="form-ocorrencia">
+        <div class="form-group">
+            <label for="aluno">Nome do Aluno:</label>
+            <input type="text" id="aluno" placeholder="Ex: João Silva">
+        </div>
+        <div class="form-group">
+            <label for="tipo">Tipo de Ocorrência:</label>
+            <select id="tipo">
+                <option value="Indisciplina">Indisciplina</option>
+                <option value="Falta de Material">Falta de Material</option>
+                <option value="Conflito">Conflito entre colegas</option>
+                <option value="Elogio">Elogio/Destaque Positivo</option>
+                <option value="Outros">Outros</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="descricao">Descrição dos Fatos:</label>
+            <textarea id="descricao" rows="4" placeholder="Descreva o que aconteceu..."></textarea>
+        </div>
+        <button id="btn-registrar">Registrar Ocorrência</button>
+    </div>
+
+    <div class="lista-ocorrencias">
+        <h2>Histórico (Banco de Dados)</h2>
+        <div id="display-ocorrencias">Carregando...</div>
+    </div>
+</div>
+
+<!-- 1. Carrega o SDK de uma fonte alternativa (unpkg) -->
+<script src="https://unpkg.com"></script>
+
+<!-- Código HTML e CSS anterior permanece igual -->
+
+<script>
+    // URL da sua API local. Quando enviar para produção (Ex: Render, Vercel), mude para a URL de lá.
+    const API_URL = '/api/ocorrencias';
+
+    // Vincular o evento de clique ao botão de registrar
+    document.getElementById('btn-registrar').addEventListener('click', salvarOcorrencia);
+
+    // FUNÇÃO PARA BUSCAR DADOS
+    async function mostrarOcorrencias() {
+        const display = document.getElementById('display-ocorrencias');
+        
+        try {
+            const response = await fetch(API_URL);
+            if (!response.ok) throw new Error('Erro ao buscar dados do servidor');
+            
+            const data = await response.json();
+            
+            display.innerHTML = data.length === 0 ? '<p>Nenhum registro encontrado.</p>' : '';
+            
+            data.forEach(oc => {
+                const div = document.createElement('div');
+                div.className = 'item-ocorrencia';
+                div.innerHTML = `
+                    <h3>${oc.aluno} <span class="data">(${oc.tipo})</span></h3>
+                    <p>${oc.descricao}</p> 
+                    <button class="btn-excluir" onclick="excluirOcorrencia('${oc.id}')">Excluir</button>
+                `;
+                display.appendChild(div);
+            });
+        } catch (error) {
+            display.innerHTML = "Erro de acesso: " + error.message;
+        }
+    }
+
+    // FUNÇÃO PARA SALVAR
+    async function salvarOcorrencia() {
+        const aluno = document.getElementById('aluno').value;
+        const tipo = document.getElementById('tipo').value;
+        const desc = document.getElementById('descricao').value;
+
+        if (!aluno || !desc) {
+            alert("Por favor, preencha todos os campos.");
+            return;
+        }
+
+        try {
+            const response = await fetch(API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ aluno, tipo, descricao: desc })
+            });
+
+            if (response.ok) {
+                document.getElementById('aluno').value = '';
+                document.getElementById('descricao').value = '';
+                mostrarOcorrencias();
+            } else {
+                const err = await response.json();
+                alert("Erro ao salvar: " + err.error);
+            }
+        } catch (error) {
+            alert("Erro na conexão com o servidor.");
+        }
+    }
+
+    // FUNÇÃO PARA EXCLUIR
+    async function excluirOcorrencia(id) {
+        if (!confirm("Tem certeza que deseja excluir esta ocorrência?")) return;
+
+        try {
+            const response = await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
+
+            if (response.ok) {
+                mostrarOcorrencias();
+            } else {
+                alert("Erro ao excluir.");
+            }
+        } catch (error) {
+            alert("Erro na conexão.");
+        }
+    }
+
+    // Inicia tudo quando a página carregar
+    window.onload = mostrarOcorrencias;
+</script>
+</body>
+</html>

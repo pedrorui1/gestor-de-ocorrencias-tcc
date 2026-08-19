@@ -1,0 +1,13 @@
+Field,Type,Null,Key,Default,Extra
+id_ocorrencia,int,NO,PRI,NULL,auto_increment
+id_aluno,int,NO,MUL,NULL,
+id_funcionario_relator,int,NO,MUL,NULL,
+id_categoria,int,NO,MUL,NULL,
+data_hora_fato,datetime,NO,,NULL,
+data_registro,timestamp,YES,,CURRENT_TIMESTAMP,DEFAULT_GENERATED
+local_fato,varchar(100),YES,,NULL,
+descricao_detalhada,text,NO,,NULL,
+providencias_imediatas,text,YES,,NULL,
+status_resolucao,"enum('Aberto','Em Acompanhamento','Concluído','Arquivado')",YES,,Aberto,
+responsavel_notificado,tinyint(1),YES,,0,
+observacao_coordenacao,text,YES,,NULL,

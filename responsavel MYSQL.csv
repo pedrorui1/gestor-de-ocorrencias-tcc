@@ -1,0 +1,8 @@
+Field,Type,Null,Key,Default,Extra
+id_responsavel,int,NO,PRI,NULL,auto_increment
+nome_completo,varchar(150),NO,,NULL,
+cpf,varchar(14),YES,UNI,NULL,
+telefone_principal,varchar(20),NO,,NULL,
+telefone_emergencia,varchar(20),YES,,NULL,
+email,varchar(100),YES,,NULL,
+endereco_residencial,text,YES,,NULL,

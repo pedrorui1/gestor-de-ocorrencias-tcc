@@ -1,0 +1,5 @@
+Field,Type,Null,Key,Default,Extra
+id_categoria,int,NO,PRI,NULL,auto_increment
+nome_categoria,varchar(50),NO,,NULL,
+nivel_gravidade,"enum('Baixo','Médio','Alto','Crítico')",NO,,NULL,
+pontuacao_negativa,int,YES,,0,

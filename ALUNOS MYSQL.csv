@@ -1,0 +1,11 @@
+Field,Type,Null,Key,Default,Extra
+id_aluno,int,NO,PRI,NULL,auto_increment
+id_responsavel,int,YES,MUL,NULL,
+nome_completo,varchar(150),NO,,NULL,
+matricula,varchar(20),NO,UNI,NULL,
+data_nascimento,date,NO,,NULL,
+genero,"enum('M','F','Outro')",YES,,NULL,
+turma_atual,varchar(20),NO,,NULL,
+periodo,"enum('Manhã','Tarde','Integral')",YES,,NULL,
+restricao_medica,text,YES,,NULL,
+foto_url,varchar(255),YES,,NULL,
