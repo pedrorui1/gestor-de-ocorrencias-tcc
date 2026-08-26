@@ -3,27 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dark Ocorrência - Sistema de Ocorrências Escolares</title>
+    <title>Dark Ocorrência - Dashboard</title>
     <style>
         :root {
-            --bg-gradient-start: #0f0a19;
-            --bg-gradient-end: #05040a;
-            --card-bg: #13111c;
-            --card-border: #231f33;
-            --input-bg: #181524;
-            --input-border: #2b263d;
-            --tab-bg: #181524;
+            --bg-body: #09070f;
+            --sidebar-bg: #100d1a;
+            --card-bg: #151121;
+            --card-border: #231c33;
+            --input-bg: #1b162a;
+            --input-border: #2e2645;
             --purple-primary: #8b5cf6;
             --purple-hover: #7c3aed;
             --purple-light: #a78bfa;
             --text-main: #ffffff;
-            --text-muted: #8e8a9f;
+            --text-muted: #8c85a1;
             --danger: #ef4444;
+
+            /* Cores dos Cards de Métricas */
+            --card-total-bg: rgba(139, 92, 246, 0.1);
+            --card-total-border: rgba(139, 92, 246, 0.3);
             
-            /* Cores de Status */
-            --status-pendente: #f59e0b;
-            --status-andamento: #3b82f6;
-            --status-resolvida: #10b981;
+            --card-abertas-bg: rgba(245, 158, 11, 0.1);
+            --card-abertas-border: rgba(245, 158, 11, 0.3);
+            --card-abertas-color: #f59e0b;
+
+            --card-andamento-bg: rgba(59, 130, 246, 0.1);
+            --card-andamento-border: rgba(59, 130, 246, 0.3);
+            --card-andamento-color: #3b82f6;
+
+            --card-resolvidas-bg: rgba(16, 185, 129, 0.1);
+            --card-resolvidas-border: rgba(16, 185, 129, 0.3);
+            --card-resolvidas-color: #10b981;
         }
 
         * {
@@ -34,79 +44,54 @@
         }
 
         body {
-            background: radial-gradient(circle at top, #1a0b2e 0%, var(--bg-gradient-start) 40%, var(--bg-gradient-end) 100%);
-            min-height: 100vh;
+            background-color: var(--bg-body);
             color: var(--text-main);
+            min-height: 100vh;
+        }
+
+        /* --- TELA DE AUTENTICAÇÃO --- */
+        .auth-container {
+            min-height: 100vh;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             padding: 20px;
+            background: radial-gradient(circle at top, #1a0b2e 0%, var(--bg-body) 60%);
         }
 
-        /* --- TELA DE AUTENTICAÇÃO (LOGIN / CADASTRO) --- */
-        .auth-container {
-            width: 100%;
-            max-width: 440px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        /* Ícone de Escudo */
         .brand-icon {
-            width: 64px;
-            height: 64px;
-            background: linear-gradient(135deg, #2a1b4e 0%, #150d28 100%);
+            width: 60px;
+            height: 60px;
+            background: #1e1238;
             border: 1px solid #3d2770;
-            border-radius: 18px;
+            border-radius: 16px;
             display: flex;
             justify-content: center;
             align-items: center;
-            margin-bottom: 20px;
-            box-shadow: 0 0 25px rgba(139, 92, 246, 0.15);
+            margin-bottom: 16px;
         }
 
-        .brand-icon svg {
-            width: 32px;
-            height: 32px;
-            stroke: var(--purple-light);
-            fill: none;
-            stroke-width: 2;
-        }
+        .brand-icon svg { width: 30px; height: 30px; stroke: var(--purple-light); fill: none; stroke-width: 2; }
+        .brand-title { font-size: 28px; font-weight: 800; margin-bottom: 4px; }
+        .brand-subtitle { color: var(--text-muted); font-size: 14px; margin-bottom: 24px; }
 
-        .brand-title {
-            font-size: 32px;
-            font-weight: 800;
-            letter-spacing: -0.5px;
-            margin-bottom: 6px;
-            text-align: center;
-        }
-
-        .brand-subtitle {
-            color: var(--text-muted);
-            font-size: 15px;
-            margin-bottom: 32px;
-            text-align: center;
-        }
-
-        /* Card do Formulário */
         .auth-card {
             background-color: var(--card-bg);
             border: 1px solid var(--card-border);
-            border-radius: 20px;
+            border-radius: 16px;
             padding: 24px;
             width: 100%;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+            max-width: 400px;
         }
 
-        /* Altrenador de Abas (Tabs) */
         .tab-switcher {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            background-color: var(--tab-bg);
+            background-color: var(--input-bg);
             padding: 4px;
-            border-radius: 12px;
-            margin-bottom: 24px;
+            border-radius: 10px;
+            margin-bottom: 20px;
             border: 1px solid var(--input-border);
         }
 
@@ -114,7 +99,7 @@
             background: transparent;
             border: none;
             color: var(--text-muted);
-            padding: 10px 16px;
+            padding: 10px;
             font-size: 14px;
             font-weight: 600;
             border-radius: 8px;
@@ -123,401 +108,456 @@
             align-items: center;
             justify-content: center;
             gap: 8px;
-            transition: all 0.2s ease;
         }
 
-        .tab-btn.active {
-            background-color: var(--purple-primary);
-            color: var(--text-main);
-            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
-        }
+        .tab-btn.active { background-color: var(--purple-primary); color: #fff; }
 
-        .form-group {
-            margin-bottom: 18px;
-        }
-
-        .form-group label {
-            display: block;
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--text-main);
-            margin-bottom: 8px;
-        }
-
-        .input-wrapper {
-            position: relative;
-            display: flex;
-            align-items: center;
-        }
+        .form-group { margin-bottom: 16px; }
+        .form-group label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; }
 
         .input-control {
             width: 100%;
             background-color: var(--input-bg);
             border: 1px solid var(--input-border);
-            border-radius: 10px;
-            padding: 14px 16px;
+            border-radius: 8px;
+            padding: 12px 14px;
             color: var(--text-main);
             font-size: 14px;
             outline: none;
-            transition: border-color 0.2s ease;
         }
 
-        .input-control::placeholder {
-            color: #524d68;
-        }
-
-        .input-control:focus {
-            border-color: var(--purple-primary);
-        }
-
-        .toggle-password {
-            position: absolute;
-            right: 14px;
-            background: transparent;
-            border: none;
-            color: var(--text-muted);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-        }
-
-        .toggle-password:hover {
-            color: var(--text-main);
-        }
+        .input-control:focus { border-color: var(--purple-primary); }
 
         .btn-submit {
             width: 100%;
             background-color: var(--purple-primary);
-            color: var(--text-main);
+            color: #fff;
             border: none;
-            border-radius: 10px;
-            padding: 14px;
-            font-size: 16px;
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 15px;
             font-weight: 700;
             cursor: pointer;
-            margin-top: 10px;
-            box-shadow: 0 4px 20px rgba(139, 92, 246, 0.4);
-            transition: background-color 0.2s ease;
-        }
-
-        .btn-submit:hover {
-            background-color: var(--purple-hover);
-        }
-
-        /* --- PAINEL / DASHBOARD PÓS-LOGIN --- */
-        .app-container {
-            width: 100%;
-            max-width: 900px;
-            background: var(--card-bg);
-            border: 1px solid var(--card-border);
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
-        }
-
-        .app-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid var(--card-border);
-            padding-bottom: 20px;
-            margin-bottom: 25px;
-        }
-
-        .user-badge {
-            background: var(--input-bg);
-            border: 1px solid var(--input-border);
-            padding: 6px 12px;
-            border-radius: 8px;
-            font-size: 13px;
-            color: var(--purple-light);
-            font-weight: 600;
-        }
-
-        .btn-logout {
-            background: transparent;
-            border: 1px solid var(--danger);
-            color: var(--danger);
-            padding: 8px 16px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
             transition: 0.2s;
         }
 
-        .btn-logout:hover {
-            background: var(--danger);
-            color: white;
+        .btn-submit:hover { background-color: var(--purple-hover); }
+
+        /* --- LAYOUT DA APLICAÇÃO (DASHBOARD) --- */
+        .app-layout {
+            display: flex;
+            min-height: 100vh;
         }
 
-        .grid-layout {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 25px;
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background-color: var(--sidebar-bg);
+            border-right: 1px solid var(--card-border);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 20px 16px;
         }
 
-        @media (max-width: 768px) {
-            .grid-layout { grid-template-columns: 1fr; }
+        .sidebar-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 30px;
+            padding: 0 8px;
         }
 
-        .occurrence-card {
+        .sidebar-brand-icon {
+            width: 36px;
+            height: 36px;
+            background: #1e1238;
+            border: 1px solid #3d2770;
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .sidebar-brand-text h3 { font-size: 16px; font-weight: 800; line-height: 1.2; }
+        .sidebar-brand-text span { font-size: 10px; color: var(--purple-light); font-weight: 700; letter-spacing: 1px; }
+
+        .nav-list { list-style: none; }
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-radius: 10px;
+            color: var(--text-muted);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 6px;
+            transition: 0.2s;
+        }
+
+        .nav-item:hover { color: var(--text-main); background: rgba(255,255,255,0.03); }
+        .nav-item.active { background-color: #1e1433; color: var(--purple-light); }
+
+        .sidebar-user {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            padding: 12px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .avatar {
+            width: 38px;
+            height: 38px;
+            background: #2a1b4e;
+            color: var(--purple-light);
+            font-weight: bold;
+            border-radius: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .user-details h4 { font-size: 14px; font-weight: 700; }
+        .user-details span { font-size: 12px; color: var(--text-muted); text-transform: capitalize; }
+
+        /* Conteúdo Principal */
+        .main-content {
+            flex: 1;
+            padding: 32px 40px;
+            overflow-y: auto;
+        }
+
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 28px;
+        }
+
+        .top-bar h1 { font-size: 26px; font-weight: 800; }
+        .top-bar p { color: var(--text-muted); font-size: 14px; margin-top: 2px; }
+
+        .role-badge {
             background: var(--input-bg);
             border: 1px solid var(--input-border);
-            border-radius: 12px;
-            padding: 16px;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Grid de Cards de Métricas */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 28px;
+        }
+
+        @media (max-width: 1024px) {
+            .metrics-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        .metric-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 14px;
+            padding: 20px;
+            position: relative;
+        }
+
+        .metric-card.total { background: var(--card-total-bg); border-color: var(--card-total-border); }
+        .metric-card.abertas { background: var(--card-abertas-bg); border-color: var(--card-abertas-border); }
+        .metric-card.andamento { background: var(--card-andamento-bg); border-color: var(--card-andamento-border); }
+        .metric-card.resolvidas { background: var(--card-resolvidas-bg); border-color: var(--card-resolvidas-border); }
+
+        .metric-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             margin-bottom: 12px;
         }
 
-        .occurrence-header {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 8px;
+        .metric-icon { width: 22px; height: 22px; stroke-width: 2; fill: none; }
+        .metric-card.total .metric-icon { stroke: var(--purple-light); }
+        .metric-card.abertas .metric-icon { stroke: var(--card-abertas-color); }
+        .metric-card.andamento .metric-icon { stroke: var(--card-andamento-color); }
+        .metric-card.resolvidas .metric-icon { stroke: var(--card-resolvidas-color); }
+
+        .metric-value { font-size: 28px; font-weight: 800; margin-bottom: 4px; }
+        .metric-label { font-size: 13px; color: var(--text-muted); font-weight: 600; }
+
+        /* Card de Seção (Ocorrências Recentes e Lançamento) */
+        .section-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 14px;
+            padding: 24px;
+            min-height: 250px;
         }
 
-        .badge-status {
-            font-size: 11px;
-            padding: 3px 8px;
-            border-radius: 6px;
-            font-weight: bold;
-            text-transform: uppercase;
+        .section-card h3 { font-size: 18px; margin-bottom: 20px; }
+
+        .empty-state {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 180px;
+            color: var(--text-muted);
+            font-size: 14px;
         }
-        .status-pendente { background: var(--status-pendente); color: #000; }
-        .status-em_andamento { background: var(--status-andamento); color: #fff; }
-        .status-resolvida { background: var(--status-resolvida); color: #fff; }
+
+        .item-ocorrencia {
+            background: var(--input-bg);
+            border: 1px solid var(--input-border);
+            border-radius: 10px;
+            padding: 16px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
 
         .hidden { display: none !important; }
     </style>
 </head>
 <body>
 
-    <!-- 1. TELA DE AUTENTICAÇÃO (LOGIN / REGISTRO) -->
+    <!-- 1. TELA DE AUTENTICAÇÃO -->
     <div id="auth-screen" class="auth-container">
-        <!-- Ícone de Escudo superior -->
         <div class="brand-icon">
-            <svg viewBox="0 0 24 24">
-                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-            </svg>
+            <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
         </div>
-
         <h1 class="brand-title">Dark Ocorrência</h1>
         <p class="brand-subtitle">Sistema de Ocorrências Escolares</p>
 
         <div class="auth-card">
-            <!-- Abas (Entrar / Cadastrar) -->
             <div class="tab-switcher">
-                <button class="tab-btn active" id="tab-login" onclick="switchTab('login')">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M13 12H3"/>
-                    </svg>
-                    Entrar
-                </button>
-                <button class="tab-btn" id="tab-register" onclick="switchTab('register')">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-                        <circle cx="8.5" cy="7" r="4"/>
-                        <line x1="20" y1="8" x2="20" y2="14"/>
-                        <line x1="17" y1="11" x2="23" y2="11"/>
-                    </svg>
-                    Cadastrar
-                </button>
+                <button class="tab-btn active" id="tab-login" onclick="switchTab('login')">Entrar</button>
+                <button class="tab-btn" id="tab-register" onclick="switchTab('register')">Cadastrar</button>
             </div>
 
-            <!-- FORMULÁRIO DE LOGIN -->
+            <!-- Login -->
             <form id="form-login" onsubmit="handleAuth(event)">
                 <div class="form-group">
                     <label>E-mail</label>
-                    <div class="input-wrapper">
-                        <input type="email" id="login-email" class="input-control" placeholder="seu@email.com" required>
-                    </div>
+                    <input type="email" id="login-email" class="input-control" placeholder="seu@email.com" required>
                 </div>
-
                 <div class="form-group">
                     <label>Senha</label>
-                    <div class="input-wrapper">
-                        <input type="password" id="login-password" class="input-control" placeholder="Mínimo 6 caracteres" required>
-                        <button type="button" class="toggle-password" onclick="togglePasswordVisibility('login-password', this)">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                                <circle cx="12" cy="12" r="3"/>
-                            </svg>
-                        </button>
-                    </div>
+                    <input type="password" id="login-password" class="input-control" placeholder="Mínimo 6 caracteres" required>
                 </div>
-
                 <button type="submit" class="btn-submit">Entrar</button>
             </form>
 
-            <!-- FORMULÁRIO DE CADASTRO -->
+            <!-- Cadastro -->
             <form id="form-register" class="hidden" onsubmit="handleAuth(event)">
                 <div class="form-group">
                     <label>Nome Completo</label>
-                    <input type="text" id="reg-name" class="input-control" placeholder="Ex: Maria Silva" required>
+                    <input type="text" id="reg-name" class="input-control" placeholder="Ex: Pedro Santos" required>
                 </div>
-
                 <div class="form-group">
                     <label>Cargo / Função</label>
                     <select id="reg-role" class="input-control" required>
                         <option value="funcionario">Funcionário (Apenas Lançar)</option>
                         <option value="professor">Professor (Lançar e Visualizar)</option>
-                        <option value="diretor">Diretor (Acesso Total)</option>
+                        <option value="diretor">Diretor / Admin (Acesso Total)</option>
                     </select>
                 </div>
-
                 <div class="form-group">
                     <label>E-mail</label>
                     <input type="email" id="reg-email" class="input-control" placeholder="seu@email.com" required>
                 </div>
-
                 <div class="form-group">
                     <label>Senha</label>
-                    <div class="input-wrapper">
-                        <input type="password" id="reg-password" class="input-control" placeholder="Mínimo 6 caracteres" required>
-                        <button type="button" class="toggle-password" onclick="togglePasswordVisibility('reg-password', this)">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                                <circle cx="12" cy="12" r="3"/>
-                            </svg>
-                        </button>
-                    </div>
+                    <input type="password" class="input-control" placeholder="Mínimo 6 caracteres" required>
                 </div>
-
                 <button type="submit" class="btn-submit">Criar Conta</button>
             </form>
         </div>
     </div>
 
-    <!-- 2. PAINEL PRINCIPAL (SISTEMA DE OCORRÊNCIAS) -->
-    <div id="app-screen" class="app-container hidden">
-        <div class="app-header">
+    <!-- 2. DASHBOARD / PAINEL DO USUÁRIO -->
+    <div id="app-screen" class="app-layout hidden">
+        
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
             <div>
-                <h2>Dark Ocorrência</h2>
-                <div style="margin-top: 5px;">
-                    <span id="user-display-name">Carregando...</span> 
-                    <span id="user-display-role" class="user-badge">Cargo</span>
+                <div class="sidebar-brand">
+                    <div class="sidebar-brand-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                    </div>
+                    <div class="sidebar-brand-text">
+                        <h3>Dark</h3>
+                        <span>OCORRÊNCIA</span>
+                    </div>
+                </div>
+
+                <ul class="nav-list">
+                    <li class="nav-item active" id="nav-dash" onclick="navegar('dashboard')">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                        Dashboard
+                    </li>
+                    <li class="nav-item" id="nav-oc" onclick="navegar('ocorrencias')">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                        Ocorrências
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Perfil do Usuário na Sidebar -->
+            <div class="sidebar-user" onclick="logout()" style="cursor: pointer;" title="Clique para sair">
+                <div class="avatar" id="user-avatar">P</div>
+                <div class="user-details">
+                    <h4 id="user-name">Pedro</h4>
+                    <span id="user-role">Admin</span>
                 </div>
             </div>
-            <button class="btn-logout" onclick="logout()">Sair</button>
-        </div>
+        </aside>
 
-        <div class="grid-layout">
-            <!-- Coluna de Cadastro de Ocorrências (Lançamento) -->
-            <section>
-                <h3 style="margin-bottom: 15px;">Nova Ocorrência</h3>
-                <form onsubmit="cadastrarOcorrencia(event)">
-                    <div class="form-group">
-                        <label>Nome do Aluno</label>
-                        <input type="text" id="oc-aluno" class="input-control" placeholder="Ex: João Pedro" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Tipo de Ocorrência</label>
-                        <select id="oc-tipo" class="input-control">
-                            <option value="Indisciplina">Indisciplina</option>
-                            <option value="Falta de Material">Falta de Material</option>
-                            <option value="Conflito">Conflito entre Colegas</option>
-                            <option value="Elogio">Elogio</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Descrição dos Fatos</label>
-                        <textarea id="oc-desc" class="input-control" rows="4" placeholder="Detalhes do ocorrido..." required></textarea>
-                    </div>
-                    <button type="submit" class="btn-submit">+ Lançar Ocorrência</button>
-                </form>
-            </section>
-
-            <!-- Coluna do Histórico (Restrito para Professores e Diretores) -->
-            <section id="sec-historico">
-                <h3 style="margin-bottom: 15px;">Histórico de Registros</h3>
-                <div id="lista-ocorrencias">
-                    <!-- Os itens serão populados via Javascript -->
+        <!-- Main Workspace -->
+        <main class="main-content">
+            
+            <div class="top-bar">
+                <div>
+                    <h1 id="page-title">Dashboard</h1>
+                    <p id="welcome-msg">Bem-vindo(a), pedro</p>
                 </div>
-            </section>
-        </div>
+                <div class="role-badge">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    <span id="header-role">Admin</span>
+                </div>
+            </div>
+
+            <!-- VISÃO 1: DASHBOARD -->
+            <div id="view-dashboard">
+                <!-- Métricas -->
+                <div class="metrics-grid">
+                    <div class="metric-card total">
+                        <div class="metric-card-header">
+                            <svg class="metric-icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/></svg>
+                        </div>
+                        <div class="metric-value" id="count-total">0</div>
+                        <div class="metric-label">Total</div>
+                    </div>
+
+                    <div class="metric-card abertas">
+                        <div class="metric-card-header">
+                            <svg class="metric-icon" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/></svg>
+                        </div>
+                        <div class="metric-value" id="count-abertas">0</div>
+                        <div class="metric-label">Abertas</div>
+                    </div>
+
+                    <div class="metric-card andamento">
+                        <div class="metric-card-header">
+                            <svg class="metric-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/></svg>
+                        </div>
+                        <div class="metric-value" id="count-andamento">0</div>
+                        <div class="metric-label">Em Andamento</div>
+                    </div>
+
+                    <div class="metric-card resolvidas">
+                        <div class="metric-card-header">
+                            <svg class="metric-icon" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/></svg>
+                        </div>
+                        <div class="metric-value" id="count-resolvidas">0</div>
+                        <div class="metric-label">Resolvidas</div>
+                    </div>
+                </div>
+
+                <!-- Tabela de Ocorrências Recentes -->
+                <div class="section-card">
+                    <h3>Ocorrências Recentes</h3>
+                    <div id="recent-list">
+                        <div class="empty-state">Nenhuma ocorrência registrada</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VISÃO 2: GERENCIAR/LANÇAR OCORRÊNCIAS -->
+            <div id="view-ocorrencias" class="hidden">
+                <div class="section-card">
+                    <h3>Lançar Nova Ocorrência</h3>
+                    <form onsubmit="cadastrarOcorrencia(event)">
+                        <div class="form-group">
+                            <label>Nome do Aluno</label>
+                            <input type="text" id="oc-aluno" class="input-control" placeholder="Ex: João Pedro" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Tipo de Ocorrência</label>
+                            <select id="oc-tipo" class="input-control">
+                                <option value="Indisciplina">Indisciplina</option>
+                                <option value="Falta de Material">Falta de Material</option>
+                                <option value="Conflito">Conflito entre Colegas</option>
+                                <option value="Elogio">Elogio</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Descrição</label>
+                            <textarea id="oc-desc" class="input-control" rows="4" placeholder="Detalhes da ocorrência..." required></textarea>
+                        </div>
+                        <button type="submit" class="btn-submit">+ Lançar Registro</button>
+                    </form>
+                </div>
+            </div>
+
+        </main>
     </div>
 
     <script>
-        // Dados temporários em memória (simulando um Banco de Dados offline)
         let currentUser = null;
-        let occurrences = [
-            { id: 1, aluno: "Lucas Gabriel", tipo: "Indisciplina", desc: "Uso do celular em sala de aula.", status: "Pendente" },
-            { id: 2, aluno: "Beatriz Lima", tipo: "Elogio", desc: "Ajuda aos colegas durante o trabalho em grupo.", status: "Resolvida" }
-        ];
+        let occurrences = [];
 
-        // Lógica de Abas (Entrar / Cadastrar)
         function switchTab(mode) {
-            const tabLogin = document.getElementById('tab-login');
-            const tabRegister = document.getElementById('tab-register');
-            const formLogin = document.getElementById('form-login');
-            const formRegister = document.getElementById('form-register');
-
-            if (mode === 'login') {
-                tabLogin.classList.add('active');
-                tabRegister.classList.remove('active');
-                formLogin.classList.remove('hidden');
-                formRegister.classList.add('hidden');
-            } else {
-                tabRegister.classList.add('active');
-                tabLogin.classList.remove('active');
-                formRegister.classList.remove('hidden');
-                formLogin.classList.add('hidden');
-            }
+            document.getElementById('tab-login').classList.toggle('active', mode === 'login');
+            document.getElementById('tab-register').classList.toggle('active', mode === 'register');
+            document.getElementById('form-login').classList.toggle('hidden', mode !== 'login');
+            document.getElementById('form-register').classList.toggle('hidden', mode !== 'register');
         }
 
-        // Alternar Visibilidade da Senha (Ícone de Olho)
-        function togglePasswordVisibility(inputId, btn) {
-            const input = document.getElementById(inputId);
-            if (input.type === "password") {
-                input.type = "text";
-                btn.style.color = "var(--purple-primary)";
-            } else {
-                input.type = "password";
-                btn.style.color = "var(--text-muted)";
-            }
-        }
-
-        // Autenticação (Login / Cadastro)
-        function handleAuth(event) {
-            event.preventDefault();
-            
+        function handleAuth(e) {
+            e.preventDefault();
             const isRegister = !document.getElementById('form-register').classList.contains('hidden');
 
             if (isRegister) {
                 const name = document.getElementById('reg-name').value;
                 const role = document.getElementById('reg-role').value;
-                const email = document.getElementById('reg-email').value;
-
-                currentUser = { name, role, email };
+                currentUser = { name, role };
             } else {
                 const email = document.getElementById('login-email').value;
-                // Simulação simples: define como Diretor por padrão se for um e-mail de teste
-                currentUser = { 
-                    name: email.split('@')[0], 
-                    role: 'diretor', 
-                    email 
-                };
+                const name = email.split('@')[0];
+                currentUser = { name, role: 'diretor' }; // Padrão 'diretor/admin' para testes
             }
 
-            iniciarSessao();
+            iniciarDashboard();
         }
 
-        function iniciarSessao() {
+        function iniciarDashboard() {
             document.getElementById('auth-screen').classList.add('hidden');
             document.getElementById('app-screen').classList.remove('hidden');
 
-            document.getElementById('user-display-name').innerText = currentUser.name;
-            document.getElementById('user-display-role').innerText = currentUser.role.toUpperCase();
+            const roleFormatted = currentUser.role === 'diretor' ? 'Admin' : currentUser.role;
 
-            // Aplica as permissões estipuladas por cargo
-            const secHistorico = document.getElementById('sec-historico');
-            
-            if (currentUser.role === 'funcionario') {
-                // Funcionário: Pode SOMENTE lançar ocorrências
-                secHistorico.classList.add('hidden');
-            } else {
-                // Professor / Diretor: Podem visualizar o histórico
-                secHistorico.classList.remove('hidden');
-                renderOcorrencias();
-            }
+            document.getElementById('welcome-msg').innerText = `Bem-vindo(a), ${currentUser.name.toLowerCase()}`;
+            document.getElementById('user-name').innerText = currentUser.name;
+            document.getElementById('user-role').innerText = roleFormatted;
+            document.getElementById('header-role').innerText = roleFormatted;
+            document.getElementById('user-avatar').innerText = currentUser.name.charAt(0).toUpperCase();
+
+            atualizarInterface();
         }
 
         function logout() {
@@ -526,26 +566,62 @@
             document.getElementById('auth-screen').classList.remove('hidden');
         }
 
-        // Renderização da Lista de Ocorrências
-        function renderOcorrencias() {
-            const container = document.getElementById('lista-ocorrencias');
-            container.innerHTML = '';
+        function navegar(aba) {
+            document.getElementById('nav-dash').classList.toggle('active', aba === 'dashboard');
+            document.getElementById('nav-oc').classList.toggle('active', aba === 'ocorrencias');
 
-            if (occurrences.length === 0) {
-                container.innerHTML = '<p style="color:var(--text-muted);">Nenhuma ocorrência registrada.</p>';
+            document.getElementById('view-dashboard').classList.toggle('hidden', aba !== 'dashboard');
+            document.getElementById('view-ocorrencias').classList.toggle('hidden', aba !== 'ocorrencias');
+            
+            document.getElementById('page-title').innerText = aba === 'dashboard' ? 'Dashboard' : 'Registrar Ocorrências';
+        }
+
+        function cadastrarOcorrencia(e) {
+            e.preventDefault();
+            const aluno = document.getElementById('oc-aluno').value;
+            const tipo = document.getElementById('oc-tipo').value;
+            const desc = document.getElementById('oc-desc').value;
+
+            occurrences.unshift({ id: Date.now(), aluno, tipo, desc, status: 'Pendente' });
+
+            document.getElementById('oc-aluno').value = '';
+            document.getElementById('oc-desc').value = '';
+
+            alert('Ocorrência lançada!');
+            atualizarInterface();
+            navegar('dashboard');
+        }
+
+        function atualizarInterface() {
+            // Atualizar Métricas
+            document.getElementById('count-total').innerText = occurrences.length;
+            document.getElementById('count-abertas').innerText = occurrences.filter(o => o.status === 'Pendente').length;
+            document.getElementById('count-andamento').innerText = occurrences.filter(o => o.status === 'Em andamento').length;
+            document.getElementById('count-resolvidas').innerText = occurrences.filter(o => o.status === 'Resolvida').length;
+
+            // Atualizar Lista Recente
+            const recentContainer = document.getElementById('recent-list');
+            
+            if (currentUser.role === 'funcionario') {
+                recentContainer.innerHTML = '<div class="empty-state">Acesso restrito ao histórico de ocorrências.</div>';
                 return;
             }
 
+            if (occurrences.length === 0) {
+                recentContainer.innerHTML = '<div class="empty-state">Nenhuma ocorrência registrada</div>';
+                return;
+            }
+
+            recentContainer.innerHTML = '';
             occurrences.forEach(oc => {
-                const card = document.createElement('div');
-                card.className = 'occurrence-card';
+                const item = document.createElement('div');
+                item.className = 'item-ocorrencia';
 
-                let statusControl = `<span class="badge-status status-${oc.status.toLowerCase().replace(' ', '_')}">${oc.status}</span>`;
-
-                // Diretor: pode modificar o status para resolvida, em andamento e pendente
+                let statusSelect = `<span style="font-size:12px; color:var(--purple-light);">${oc.status}</span>`;
+                
                 if (currentUser.role === 'diretor') {
-                    statusControl = `
-                        <select onchange="alterarStatus(${oc.id}, this.value)" class="input-control" style="padding:4px 8px; width:auto; font-size:12px;">
+                    statusSelect = `
+                        <select onchange="alterarStatus(${oc.id}, this.value)" class="input-control" style="width:auto; padding:4px 8px; font-size:12px;">
                             <option value="Pendente" ${oc.status === 'Pendente' ? 'selected':''}>Pendente</option>
                             <option value="Em andamento" ${oc.status === 'Em andamento' ? 'selected':''}>Em andamento</option>
                             <option value="Resolvida" ${oc.status === 'Resolvida' ? 'selected':''}>Resolvida</option>
@@ -553,53 +629,22 @@
                     `;
                 }
 
-                card.innerHTML = `
-                    <div class="occurrence-header">
-                        <strong>${oc.aluno}</strong>
-                        <span style="font-size:12px; color:var(--purple-light);">${oc.tipo}</span>
+                item.innerHTML = `
+                    <div>
+                        <strong>${oc.aluno}</strong> <small style="color:var(--text-muted);">(${oc.tipo})</small>
+                        <p style="font-size:13px; color:var(--text-muted); margin-top:4px;">${oc.desc}</p>
                     </div>
-                    <p style="font-size:14px; color:var(--text-muted); margin-bottom:12px;">${oc.desc}</p>
-                    <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <small style="color:#524d68;">Status:</small>
-                        ${statusControl}
-                    </div>
+                    <div>${statusSelect}</div>
                 `;
-                container.appendChild(card);
+                recentContainer.appendChild(item);
             });
-        }
-
-        function cadastrarOcorrencia(event) {
-            event.preventDefault();
-
-            const aluno = document.getElementById('oc-aluno').value;
-            const tipo = document.getElementById('oc-tipo').value;
-            const desc = document.getElementById('oc-desc').value;
-
-            const novaOc = {
-                id: Date.now(),
-                aluno,
-                tipo,
-                desc,
-                status: 'Pendente'
-            };
-
-            occurrences.unshift(novaOc);
-
-            document.getElementById('oc-aluno').value = '';
-            document.getElementById('oc-desc').value = '';
-
-            alert('Ocorrência lançada com sucesso!');
-
-            if (currentUser.role !== 'funcionario') {
-                renderOcorrencias();
-            }
         }
 
         function alterarStatus(id, novoStatus) {
             const item = occurrences.find(o => o.id === id);
             if (item) {
                 item.status = novoStatus;
-                renderOcorrencias();
+                atualizarInterface();
             }
         }
     </script>
