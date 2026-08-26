@@ -295,7 +295,7 @@
         .metric-value { font-size: 28px; font-weight: 800; margin-bottom: 4px; }
         .metric-label { font-size: 13px; color: var(--text-muted); font-weight: 600; }
 
-        /* Card de Seção (Ocorrências Recentes e Lançamento) */
+        /* Card de Seção */
         .section-card {
             background: var(--card-bg);
             border: 1px solid var(--card-border);
@@ -305,6 +305,33 @@
         }
 
         .section-card h3 { font-size: 18px; margin-bottom: 20px; }
+
+        /* Estilização da Lista de Atitudes Inadequadas */
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            background-color: var(--input-bg);
+            border: 1px solid var(--input-border);
+            border-radius: 8px;
+            padding: 14px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            color: var(--text-main);
+            cursor: pointer;
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--purple-primary);
+            cursor: pointer;
+        }
 
         .empty-state {
             display: flex;
@@ -496,18 +523,45 @@
                             <label>Nome do Aluno</label>
                             <input type="text" id="oc-aluno" class="input-control" placeholder="Ex: João Pedro" required>
                         </div>
+                        
+                        <!-- Lista de Atitudes Inadequadas da Imagem -->
                         <div class="form-group">
-                            <label>Tipo de Ocorrência</label>
-                            <select id="oc-tipo" class="input-control">
-                                <option value="Indisciplina">Indisciplina</option>
-                                <option value="Falta de Material">Falta de Material</option>
-                                <option value="Conflito">Conflito entre Colegas</option>
-                                <option value="Elogio">Elogio</option>
-                            </select>
+                            <label>Atitudes Inadequadas pelo Aluno:</label>
+                            <div class="checkbox-group">
+                                <label class="checkbox-item">
+                                    <input type="checkbox" name="atitudes" value="Desrespeitar os professores, funcionários e colegas de classe">
+                                    Desrespeitar os professores, funcionários e colegas de classe;
+                                </label>
+                                <label class="checkbox-item">
+                                    <input type="checkbox" name="atitudes" value="Desobedecer e tumultuar a aula e a rotina escolar">
+                                    Desobedecer e tumultuar a aula e a rotina escolar;
+                                </label>
+                                <label class="checkbox-item">
+                                    <input type="checkbox" name="atitudes" value="Provocação voluntária">
+                                    Provocação voluntária;
+                                </label>
+                                <label class="checkbox-item">
+                                    <input type="checkbox" name="atitudes" value="Agredir de forma verbal e física os colegas, professores e funcionários">
+                                    Agredir de forma verbal e física os colegas, professores e funcionários;
+                                </label>
+                                <label class="checkbox-item">
+                                    <input type="checkbox" name="atitudes" value="Destruir patrimônio público">
+                                    Destruir patrimônio público;
+                                </label>
+                                <label class="checkbox-item">
+                                    <input type="checkbox" name="atitudes" value="Destruir e perder material didático">
+                                    Destruir e perder material didático;
+                                </label>
+                                <label class="checkbox-item">
+                                    <input type="checkbox" name="atitudes" value="Uso indevido do celular e aparelhos eletrônicos">
+                                    Uso indevido do celular e aparelhos eletrônicos;
+                                </label>
+                            </div>
                         </div>
+
                         <div class="form-group">
-                            <label>Descrição</label>
-                            <textarea id="oc-desc" class="input-control" rows="4" placeholder="Detalhes da ocorrência..." required></textarea>
+                            <label>Descrição Adicional</label>
+                            <textarea id="oc-desc" class="input-control" rows="4" placeholder="Detalhes da ocorrência..."></textarea>
                         </div>
                         <button type="submit" class="btn-submit">+ Lançar Registro</button>
                     </form>
@@ -539,7 +593,7 @@
             } else {
                 const email = document.getElementById('login-email').value;
                 const name = email.split('@')[0];
-                currentUser = { name, role: 'diretor' }; // Padrão 'diretor/admin' para testes
+                currentUser = { name, role: 'diretor' };
             }
 
             iniciarDashboard();
@@ -579,13 +633,33 @@
         function cadastrarOcorrencia(e) {
             e.preventDefault();
             const aluno = document.getElementById('oc-aluno').value;
-            const tipo = document.getElementById('oc-tipo').value;
             const desc = document.getElementById('oc-desc').value;
 
-            occurrences.unshift({ id: Date.now(), aluno, tipo, desc, status: 'Pendente' });
+            // Capturar atitudes selecionadas
+            const atitudesSelecionadas = Array.from(document.querySelectorAll('input[name="atitudes"]:checked'))
+                .map(cb => cb.value);
 
+            if (atitudesSelecionadas.length === 0 && !desc.trim()) {
+                alert('Selecione ao menos uma atitude ou escreva uma descrição.');
+                return;
+            }
+
+            const tipoTexto = atitudesSelecionadas.length > 0 
+                ? atitudesSelecionadas.join('; ') 
+                : 'Outro';
+
+            occurrences.unshift({ 
+                id: Date.now(), 
+                aluno, 
+                tipo: tipoTexto, 
+                desc, 
+                status: 'Pendente' 
+            });
+
+            // Limpar formulário
             document.getElementById('oc-aluno').value = '';
             document.getElementById('oc-desc').value = '';
+            document.querySelectorAll('input[name="atitudes"]').forEach(cb => cb.checked = false);
 
             alert('Ocorrência lançada!');
             atualizarInterface();
@@ -593,13 +667,11 @@
         }
 
         function atualizarInterface() {
-            // Atualizar Métricas
             document.getElementById('count-total').innerText = occurrences.length;
             document.getElementById('count-abertas').innerText = occurrences.filter(o => o.status === 'Pendente').length;
             document.getElementById('count-andamento').innerText = occurrences.filter(o => o.status === 'Em andamento').length;
             document.getElementById('count-resolvidas').innerText = occurrences.filter(o => o.status === 'Resolvida').length;
 
-            // Atualizar Lista Recente
             const recentContainer = document.getElementById('recent-list');
             
             if (currentUser.role === 'funcionario') {
@@ -631,8 +703,9 @@
 
                 item.innerHTML = `
                     <div>
-                        <strong>${oc.aluno}</strong> <small style="color:var(--text-muted);">(${oc.tipo})</small>
-                        <p style="font-size:13px; color:var(--text-muted); margin-top:4px;">${oc.desc}</p>
+                        <strong>${oc.aluno}</strong>
+                        <p style="font-size:13px; color:var(--purple-light); margin-top:4px;"><strong>Atitudes:</strong> ${oc.tipo}</p>
+                        ${oc.desc ? `<p style="font-size:13px; color:var(--text-muted); margin-top:2px;">${oc.desc}</p>` : ''}
                     </div>
                     <div>${statusSelect}</div>
                 `;
