@@ -115,6 +115,12 @@
         .form-group { margin-bottom: 16px; }
         .form-group label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; }
 
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
         .input-control {
             width: 100%;
             background-color: var(--input-bg);
@@ -264,6 +270,7 @@
 
         @media (max-width: 1024px) {
             .metrics-grid { grid-template-columns: repeat(2, 1fr); }
+            .form-row { grid-template-columns: 1fr; }
         }
 
         .metric-card {
@@ -351,6 +358,31 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            gap: 16px;
+        }
+
+        .action-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .btn-delete {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: var(--danger);
+            padding: 8px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.2s;
+        }
+
+        .btn-delete:hover {
+            background: var(--danger);
+            color: #fff;
         }
 
         .hidden { display: none !important; }
@@ -519,11 +551,24 @@
                 <div class="section-card">
                     <h3>Lançar Nova Ocorrência</h3>
                     <form onsubmit="cadastrarOcorrencia(event)">
+                        
                         <div class="form-group">
                             <label>Nome do Aluno</label>
                             <input type="text" id="oc-aluno" class="input-control" placeholder="Ex: João Pedro" required>
                         </div>
-                        
+
+                        <!-- Série/Turma e Data do Lançamento -->
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Série / Turma</label>
+                                <input type="text" id="oc-serie" class="input-control" placeholder="Ex: 8º Ano A" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Data do Lançamento</label>
+                                <input type="date" id="oc-data" class="input-control" required>
+                            </div>
+                        </div>
+
                         <!-- Lista de Atitudes Inadequadas da Imagem -->
                         <div class="form-group">
                             <label>Atitudes Inadequadas pelo Aluno:</label>
@@ -560,8 +605,8 @@
                         </div>
 
                         <div class="form-group">
-                            <label>Descrição Adicional</label>
-                            <textarea id="oc-desc" class="input-control" rows="4" placeholder="Detalhes da ocorrência..."></textarea>
+                            <label>Descrição Adicional <span style="color:var(--text-muted); font-weight:normal;">(Opcional)</span></label>
+                            <textarea id="oc-desc" class="input-control" rows="4" placeholder="Detalhes adicionais da ocorrência..."></textarea>
                         </div>
                         <button type="submit" class="btn-submit">+ Lançar Registro</button>
                     </form>
@@ -574,6 +619,12 @@
     <script>
         let currentUser = null;
         let occurrences = [];
+
+        // Definir a data atual padrão no campo de data
+        document.addEventListener('DOMContentLoaded', () => {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('oc-data').value = today;
+        });
 
         function switchTab(mode) {
             document.getElementById('tab-login').classList.toggle('active', mode === 'login');
@@ -633,6 +684,8 @@
         function cadastrarOcorrencia(e) {
             e.preventDefault();
             const aluno = document.getElementById('oc-aluno').value;
+            const serie = document.getElementById('oc-serie').value;
+            const data = document.getElementById('oc-data').value;
             const desc = document.getElementById('oc-desc').value;
 
             // Capturar atitudes selecionadas
@@ -640,7 +693,7 @@
                 .map(cb => cb.value);
 
             if (atitudesSelecionadas.length === 0 && !desc.trim()) {
-                alert('Selecione ao menos uma atitude ou escreva uma descrição.');
+                alert('Selecione ao menos uma atitude ou escreva uma descrição adicional.');
                 return;
             }
 
@@ -648,22 +701,36 @@
                 ? atitudesSelecionadas.join('; ') 
                 : 'Outro';
 
+            // Formatar data para exibição (AAAA-MM-DD -> DD/MM/AAAA)
+            const [year, month, day] = data.split('-');
+            const dataFormatada = `${day}/${month}/${year}`;
+
             occurrences.unshift({ 
                 id: Date.now(), 
                 aluno, 
+                serie,
+                data: dataFormatada,
                 tipo: tipoTexto, 
                 desc, 
                 status: 'Pendente' 
             });
 
-            // Limpar formulário
+            // Limpar formulário mantendo a data atual
             document.getElementById('oc-aluno').value = '';
+            document.getElementById('oc-serie').value = '';
             document.getElementById('oc-desc').value = '';
             document.querySelectorAll('input[name="atitudes"]').forEach(cb => cb.checked = false);
 
             alert('Ocorrência lançada!');
             atualizarInterface();
             navegar('dashboard');
+        }
+
+        function deletarOcorrencia(id) {
+            if (confirm('Tem certeza de que deseja excluir esta ocorrência?')) {
+                occurrences = occurrences.filter(o => o.id !== id);
+                atualizarInterface();
+            }
         }
 
         function atualizarInterface() {
@@ -703,11 +770,19 @@
 
                 item.innerHTML = `
                     <div>
-                        <strong>${oc.aluno}</strong>
-                        <p style="font-size:13px; color:var(--purple-light); margin-top:4px;"><strong>Atitudes:</strong> ${oc.tipo}</p>
-                        ${oc.desc ? `<p style="font-size:13px; color:var(--text-muted); margin-top:2px;">${oc.desc}</p>` : ''}
+                        <strong>${oc.aluno}</strong> 
+                        <span style="font-size:12px; color:var(--purple-light); margin-left:8px;">${oc.serie}</span>
+                        <span style="font-size:12px; color:var(--text-muted); margin-left:8px;">📅 ${oc.data}</span>
+                        
+                        <p style="font-size:13px; color:var(--text-main); margin-top:6px;"><strong>Atitudes:</strong> ${oc.tipo}</p>
+                        ${oc.desc ? `<p style="font-size:13px; color:var(--text-muted); margin-top:2px;"><strong>Obs:</strong> ${oc.desc}</p>` : ''}
                     </div>
-                    <div>${statusSelect}</div>
+                    <div class="action-group">
+                        ${statusSelect}
+                        <button class="btn-delete" onclick="deletarOcorrencia(${oc.id})" title="Excluir Ocorrência">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                        </button>
+                    </div>
                 `;
                 recentContainer.appendChild(item);
             });
