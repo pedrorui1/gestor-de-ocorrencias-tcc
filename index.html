@@ -82,7 +82,7 @@
             border-radius: 16px;
             padding: 24px;
             width: 100%;
-            max-width: 400px;
+            max-width: 440px;
         }
 
         .tab-switcher {
@@ -419,10 +419,18 @@
 
             <!-- Cadastro -->
             <form id="form-register" class="hidden" onsubmit="handleAuth(event)">
-                <div class="form-group">
-                    <label>Nome Completo</label>
-                    <input type="text" id="reg-name" class="input-control" placeholder="Ex: Pedro Santos" required>
+                <!-- NOME E SOBRENOME SEPARADOS -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Nome *</label>
+                        <input type="text" id="reg-firstname" class="input-control" placeholder="Ex: Pedro" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Sobrenome *</label>
+                        <input type="text" id="reg-lastname" class="input-control" placeholder="Ex: Santos" required>
+                    </div>
                 </div>
+
                 <div class="form-group">
                     <label>Cargo / Função</label>
                     <select id="reg-role" class="input-control" required>
@@ -476,7 +484,7 @@
             <div class="sidebar-user" onclick="logout()" style="cursor: pointer;" title="Clique para sair">
                 <div class="avatar" id="user-avatar">P</div>
                 <div class="user-details">
-                    <h4 id="user-name">Pedro</h4>
+                    <h4 id="user-name">Pedro Santos</h4>
                     <span id="user-role">Admin</span>
                 </div>
             </div>
@@ -557,12 +565,41 @@
                             <input type="text" id="oc-aluno" class="input-control" placeholder="Ex: João Pedro" required>
                         </div>
 
-                        <!-- Série/Turma e Data do Lançamento -->
+                        <!-- SELETOR DE TURMAS EM BALÃO (SELECT) -->
                         <div class="form-row">
                             <div class="form-group">
                                 <label>Série / Turma</label>
-                                <input type="text" id="oc-serie" class="input-control" placeholder="Ex: 8º Ano A" required>
+                                <select id="oc-serie" class="input-control" required>
+                                    <option value="" disabled selected>Selecione a Turma...</option>
+                                    
+                                    <!-- 3º Anos -->
+                                    <optgroup label="3º Ano">
+                                        <option value="3º Tec">3º Tec</option>
+                                        <option value="3º A">3º A</option>
+                                        <option value="3º B">3º B</option>
+                                        <option value="3º C">3º C</option>
+                                        <option value="3º D">3º D</option>
+                                    </optgroup>
+
+                                    <!-- 2º Anos -->
+                                    <optgroup label="2º Ano">
+                                        <option value="2º Tec">2º Tec</option>
+                                        <option value="2º A">2º A</option>
+                                        <option value="2º B">2º B</option>
+                                        <option value="2º C">2º C</option>
+                                        <option value="2º D">2º D</option>
+                                    </optgroup>
+
+                                    <!-- 1º Anos -->
+                                    <optgroup label="1º Ano">
+                                        <option value="1º A">1º A</option>
+                                        <option value="1º B">1º B</option>
+                                        <option value="1º C">1º C</option>
+                                        <option value="1º D">1º D</option>
+                                    </optgroup>
+                                </select>
                             </div>
+
                             <div class="form-group">
                                 <label>Data do Lançamento</label>
                                 <input type="date" id="oc-data" class="input-control" required>
@@ -653,18 +690,25 @@
             const isRegister = !document.getElementById('form-register').classList.contains('hidden');
 
             if (isRegister) {
-                const name = document.getElementById('reg-name').value;
+                const firstName = document.getElementById('reg-firstname').value.trim();
+                const lastName = document.getElementById('reg-lastname').value.trim();
                 const role = document.getElementById('reg-role').value;
                 const email = document.getElementById('reg-email').value;
                 const password = document.getElementById('reg-password').value;
 
-                // 1. Validação do Domínio do E-mail
+                // 1. Validação Obrigatória de Nome e Sobrenome
+                if (!firstName || !lastName) {
+                    alert('Por favor, preencha o Nome e o Sobrenome obrigatoriamente!');
+                    return;
+                }
+
+                // 2. Validação do Domínio do E-mail
                 if (!validarEmailPermitido(email)) {
                     alert('Permitido apenas e-mails @gmail.com ou de funcionários públicos (.gov.br / .edu.br)!');
                     return;
                 }
 
-                // 2. Validação de Senha Genérica / Fraca
+                // 3. Validação de Senha Genérica / Fraca
                 if (password.length < 6) {
                     alert('A senha deve conter no mínimo 6 caracteres!');
                     return;
@@ -675,7 +719,8 @@
                     return;
                 }
 
-                currentUser = { name, role, email };
+                const fullName = `${firstName} ${lastName}`;
+                currentUser = { name: fullName, role, email };
             } else {
                 const email = document.getElementById('login-email').value;
 
@@ -685,8 +730,8 @@
                     return;
                 }
 
-                const name = email.split('@')[0];
-                currentUser = { name, role: 'diretor', email };
+                const nameFromEmail = email.split('@')[0];
+                currentUser = { name: nameFromEmail, role: 'diretor', email };
             }
 
             iniciarDashboard();
@@ -730,6 +775,11 @@
             const data = document.getElementById('oc-data').value;
             const desc = document.getElementById('oc-desc').value;
 
+            if (!serie) {
+                alert('Por favor, selecione uma turma na lista!');
+                return;
+            }
+
             // Capturar atitudes selecionadas
             const atitudesSelecionadas = Array.from(document.querySelectorAll('input[name="atitudes"]:checked'))
                 .map(cb => cb.value);
@@ -754,7 +804,7 @@
                 data: dataFormatada,
                 tipo: tipoTexto, 
                 desc, 
-                autor: currentUser.name, // Guarda o nome do usuário que registrou
+                autor: currentUser.name,
                 status: 'Pendente' 
             });
 
