@@ -3,74 +3,246 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestor de Ocorrências Escolares</title>
+    <title>Dark Ocorrência - Sistema de Ocorrências Escolares</title>
     <style>
         :root {
-            --bg-body: #121214;
-            --bg-card: #1e1e24;
-            --bg-input: #2a2a32;
-            --primary: #9d4edd;
-            --primary-hover: #7b2cbf;
-            --text-main: #f0f0f5;
-            --text-muted: #a0a0b0;
-            --danger: #ff4d4d;
-            --border: #383842;
+            --bg-gradient-start: #0f0a19;
+            --bg-gradient-end: #05040a;
+            --card-bg: #13111c;
+            --card-border: #231f33;
+            --input-bg: #181524;
+            --input-border: #2b263d;
+            --tab-bg: #181524;
+            --purple-primary: #8b5cf6;
+            --purple-hover: #7c3aed;
+            --purple-light: #a78bfa;
+            --text-main: #ffffff;
+            --text-muted: #8e8a9f;
+            --danger: #ef4444;
             
-            /* Status Colors */
-            --status-pendente: #ffb703;
-            --status-andamento: #00b4d8;
-            --status-resolvida: #06d6a0;
+            /* Cores de Status */
+            --status-pendente: #f59e0b;
+            --status-andamento: #3b82f6;
+            --status-resolvida: #10b981;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg-body);
+            background: radial-gradient(circle at top, #1a0b2e 0%, var(--bg-gradient-start) 40%, var(--bg-gradient-end) 100%);
+            min-height: 100vh;
             color: var(--text-main);
-            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             padding: 20px;
         }
 
-        .container {
-            max-width: 800px;
-            margin: auto;
-            background: var(--bg-card);
-            padding: 25px;
-            border-radius: 12px;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
-            border: 1px solid var(--border);
+        /* --- TELA DE AUTENTICAÇÃO (LOGIN / CADASTRO) --- */
+        .auth-container {
+            width: 100%;
+            max-width: 440px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
-        .header {
+        /* Ícone de Escudo */
+        .brand-icon {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, #2a1b4e 0%, #150d28 100%);
+            border: 1px solid #3d2770;
+            border-radius: 18px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+            box-shadow: 0 0 25px rgba(139, 92, 246, 0.15);
+        }
+
+        .brand-icon svg {
+            width: 32px;
+            height: 32px;
+            stroke: var(--purple-light);
+            fill: none;
+            stroke-width: 2;
+        }
+
+        .brand-title {
+            font-size: 32px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            margin-bottom: 6px;
+            text-align: center;
+        }
+
+        .brand-subtitle {
+            color: var(--text-muted);
+            font-size: 15px;
+            margin-bottom: 32px;
+            text-align: center;
+        }
+
+        /* Card do Formulário */
+        .auth-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            padding: 24px;
+            width: 100%;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+        }
+
+        /* Altrenador de Abas (Tabs) */
+        .tab-switcher {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            background-color: var(--tab-bg);
+            padding: 4px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+            border: 1px solid var(--input-border);
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            padding: 10px 16px;
+            font-size: 14px;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .tab-btn.active {
+            background-color: var(--purple-primary);
+            color: var(--text-main);
+            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 8px;
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-control {
+            width: 100%;
+            background-color: var(--input-bg);
+            border: 1px solid var(--input-border);
+            border-radius: 10px;
+            padding: 14px 16px;
+            color: var(--text-main);
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s ease;
+        }
+
+        .input-control::placeholder {
+            color: #524d68;
+        }
+
+        .input-control:focus {
+            border-color: var(--purple-primary);
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 14px;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+        }
+
+        .toggle-password:hover {
+            color: var(--text-main);
+        }
+
+        .btn-submit {
+            width: 100%;
+            background-color: var(--purple-primary);
+            color: var(--text-main);
+            border: none;
+            border-radius: 10px;
+            padding: 14px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 10px;
+            box-shadow: 0 4px 20px rgba(139, 92, 246, 0.4);
+            transition: background-color 0.2s ease;
+        }
+
+        .btn-submit:hover {
+            background-color: var(--purple-hover);
+        }
+
+        /* --- PAINEL / DASHBOARD PÓS-LOGIN --- */
+        .app-container {
+            width: 100%;
+            max-width: 900px;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+        }
+
+        .app-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid var(--border);
-            padding-bottom: 15px;
-            margin-bottom: 20px;
+            border-bottom: 1px solid var(--card-border);
+            padding-bottom: 20px;
+            margin-bottom: 25px;
         }
 
-        h1, h2, h3 { color: var(--text-main); margin: 0; }
-
-        .user-info {
-            font-size: 14px;
-            color: var(--text-muted);
-            text-align: right;
-        }
-
-        .user-info span {
-            color: var(--primary);
-            font-weight: bold;
+        .user-badge {
+            background: var(--input-bg);
+            border: 1px solid var(--input-border);
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            color: var(--purple-light);
+            font-weight: 600;
         }
 
         .btn-logout {
             background: transparent;
             border: 1px solid var(--danger);
             color: var(--danger);
-            padding: 5px 10px;
-            border-radius: 4px;
+            padding: 8px 16px;
+            border-radius: 8px;
             cursor: pointer;
-            margin-top: 5px;
-            width: auto;
+            font-weight: 600;
+            transition: 0.2s;
         }
 
         .btn-logout:hover {
@@ -78,360 +250,358 @@
             color: white;
         }
 
-        .form-group { margin-bottom: 15px; }
-
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: 600;
-            color: var(--text-muted);
+        .grid-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
         }
 
-        input, select, textarea {
-            width: 100%;
-            padding: 12px;
-            background-color: var(--bg-input);
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            color: var(--text-main);
-            box-sizing: border-box;
+        @media (max-width: 768px) {
+            .grid-layout { grid-template-columns: 1fr; }
         }
 
-        input:focus, select:focus, textarea:focus {
-            outline: 2px solid var(--primary);
+        .occurrence-card {
+            background: var(--input-bg);
+            border: 1px solid var(--input-border);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
         }
 
-        button {
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 6px;
-            cursor: pointer;
-            width: 100%;
-            font-size: 16px;
-            font-weight: bold;
-            transition: background 0.3s;
-        }
-
-        button:hover { background: var(--primary-hover); }
-
-        .lista-ocorrencias { margin-top: 30px; }
-
-        .item-ocorrencia {
-            background: #25252e;
-            padding: 15px;
-            border-left: 5px solid var(--primary);
-            margin-bottom: 15px;
-            border-radius: 0 8px 8px 0;
-            border-top: 1px solid var(--border);
-            border-right: 1px solid var(--border);
-            border-bottom: 1px solid var(--border);
-        }
-
-        .item-ocorrencia-header {
+        .occurrence-header {
             display: flex;
             justify-content: space-between;
-            align-items: center;
-        }
-
-        .item-ocorrencia p { margin: 10px 0; font-size: 14px; color: var(--text-muted); }
-
-        .badge-tipo { font-size: 12px; color: var(--primary); font-style: italic; }
-
-        .status-container {
-            margin-top: 10px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 14px;
+            margin-bottom: 8px;
         }
 
         .badge-status {
+            font-size: 11px;
             padding: 3px 8px;
-            border-radius: 4px;
-            font-size: 12px;
+            border-radius: 6px;
             font-weight: bold;
             text-transform: uppercase;
         }
-
         .status-pendente { background: var(--status-pendente); color: #000; }
-        .status-andamento { background: var(--status-andamento); color: #000; }
-        .status-resolvida { background: var(--status-resolvida); color: #000; }
-
-        .btn-excluir {
-            background: var(--danger);
-            width: auto;
-            padding: 6px 12px;
-            margin-top: 10px;
-            font-size: 12px;
-        }
-
-        .select-status-inline {
-            width: auto;
-            padding: 4px 8px;
-            font-size: 12px;
-        }
-
-        /* Modal / Tela de Login */
-        .login-overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.85);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
-
-        .login-box {
-            background: var(--bg-card);
-            padding: 30px;
-            border-radius: 12px;
-            width: 100%;
-            max-width: 350px;
-            border: 1px solid var(--border);
-            box-shadow: 0 0 20px rgba(157, 78, 221, 0.2);
-        }
+        .status-em_andamento { background: var(--status-andamento); color: #fff; }
+        .status-resolvida { background: var(--status-resolvida); color: #fff; }
 
         .hidden { display: none !important; }
     </style>
 </head>
 <body>
 
-<!-- Tela de Login -->
-<div id="login-overlay" class="login-overlay">
-    <div class="login-box">
-        <h2 style="text-align: center; margin-bottom: 20px;">🔒 Acesso ao Sistema</h2>
-        <div class="form-group">
-            <label for="login-cargo">Selecione seu Cargo:</label>
-            <select id="login-cargo">
-                <option value="funcionario">Funcionário (Apenas Lançar)</option>
-                <option value="professor">Professor (Lançar e Visualizar)</option>
-                <option value="diretor">Diretor (Acesso Total)</option>
-            </select>
+    <!-- 1. TELA DE AUTENTICAÇÃO (LOGIN / REGISTRO) -->
+    <div id="auth-screen" class="auth-container">
+        <!-- Ícone de Escudo superior -->
+        <div class="brand-icon">
+            <svg viewBox="0 0 24 24">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            </svg>
         </div>
-        <div class="form-group">
-            <label for="login-nome">Nome do Usuário:</label>
-            <input type="text" id="login-nome" placeholder="Digite seu nome">
+
+        <h1 class="brand-title">Dark Ocorrência</h1>
+        <p class="brand-subtitle">Sistema de Ocorrências Escolares</p>
+
+        <div class="auth-card">
+            <!-- Abas (Entrar / Cadastrar) -->
+            <div class="tab-switcher">
+                <button class="tab-btn active" id="tab-login" onclick="switchTab('login')">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M13 12H3"/>
+                    </svg>
+                    Entrar
+                </button>
+                <button class="tab-btn" id="tab-register" onclick="switchTab('register')">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                        <circle cx="8.5" cy="7" r="4"/>
+                        <line x1="20" y1="8" x2="20" y2="14"/>
+                        <line x1="17" y1="11" x2="23" y2="11"/>
+                    </svg>
+                    Cadastrar
+                </button>
+            </div>
+
+            <!-- FORMULÁRIO DE LOGIN -->
+            <form id="form-login" onsubmit="handleAuth(event)">
+                <div class="form-group">
+                    <label>E-mail</label>
+                    <div class="input-wrapper">
+                        <input type="email" id="login-email" class="input-control" placeholder="seu@email.com" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Senha</label>
+                    <div class="input-wrapper">
+                        <input type="password" id="login-password" class="input-control" placeholder="Mínimo 6 caracteres" required>
+                        <button type="button" class="toggle-password" onclick="togglePasswordVisibility('login-password', this)">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                <circle cx="12" cy="12" r="3"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-submit">Entrar</button>
+            </form>
+
+            <!-- FORMULÁRIO DE CADASTRO -->
+            <form id="form-register" class="hidden" onsubmit="handleAuth(event)">
+                <div class="form-group">
+                    <label>Nome Completo</label>
+                    <input type="text" id="reg-name" class="input-control" placeholder="Ex: Maria Silva" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Cargo / Função</label>
+                    <select id="reg-role" class="input-control" required>
+                        <option value="funcionario">Funcionário (Apenas Lançar)</option>
+                        <option value="professor">Professor (Lançar e Visualizar)</option>
+                        <option value="diretor">Diretor (Acesso Total)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>E-mail</label>
+                    <input type="email" id="reg-email" class="input-control" placeholder="seu@email.com" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Senha</label>
+                    <div class="input-wrapper">
+                        <input type="password" id="reg-password" class="input-control" placeholder="Mínimo 6 caracteres" required>
+                        <button type="button" class="toggle-password" onclick="togglePasswordVisibility('reg-password', this)">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                <circle cx="12" cy="12" r="3"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-submit">Criar Conta</button>
+            </form>
         </div>
-        <button onclick="fazerLogin()">Entrar</button>
     </div>
-</div>
 
-<!-- Aplicação Principal -->
-<div class="container">
-    <div class="header">
-        <h1>📝 Gestor de Ocorrências</h1>
-        <div class="user-info">
-            <div id="user-display"></div>
-            <button class="btn-logout" onclick="fazerLogout()">Sair</button>
+    <!-- 2. PAINEL PRINCIPAL (SISTEMA DE OCORRÊNCIAS) -->
+    <div id="app-screen" class="app-container hidden">
+        <div class="app-header">
+            <div>
+                <h2>Dark Ocorrência</h2>
+                <div style="margin-top: 5px;">
+                    <span id="user-display-name">Carregando...</span> 
+                    <span id="user-display-role" class="user-badge">Cargo</span>
+                </div>
+            </div>
+            <button class="btn-logout" onclick="logout()">Sair</button>
+        </div>
+
+        <div class="grid-layout">
+            <!-- Coluna de Cadastro de Ocorrências (Lançamento) -->
+            <section>
+                <h3 style="margin-bottom: 15px;">Nova Ocorrência</h3>
+                <form onsubmit="cadastrarOcorrencia(event)">
+                    <div class="form-group">
+                        <label>Nome do Aluno</label>
+                        <input type="text" id="oc-aluno" class="input-control" placeholder="Ex: João Pedro" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Tipo de Ocorrência</label>
+                        <select id="oc-tipo" class="input-control">
+                            <option value="Indisciplina">Indisciplina</option>
+                            <option value="Falta de Material">Falta de Material</option>
+                            <option value="Conflito">Conflito entre Colegas</option>
+                            <option value="Elogio">Elogio</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Descrição dos Fatos</label>
+                        <textarea id="oc-desc" class="input-control" rows="4" placeholder="Detalhes do ocorrido..." required></textarea>
+                    </div>
+                    <button type="submit" class="btn-submit">+ Lançar Ocorrência</button>
+                </form>
+            </section>
+
+            <!-- Coluna do Histórico (Restrito para Professores e Diretores) -->
+            <section id="sec-historico">
+                <h3 style="margin-bottom: 15px;">Histórico de Registros</h3>
+                <div id="lista-ocorrencias">
+                    <!-- Os itens serão populados via Javascript -->
+                </div>
+            </section>
         </div>
     </div>
-    
-    <!-- Formulário de Registro (Acessível para todos os cargos) -->
-    <div id="form-ocorrencia">
-        <h2>Nova Ocorrência</h2>
-        <br>
-        <div class="form-group">
-            <label for="aluno">Nome do Aluno:</label>
-            <input type="text" id="aluno" placeholder="Ex: João Silva">
-        </div>
-        <div class="form-group">
-            <label for="tipo">Tipo de Ocorrência:</label>
-            <select id="tipo">
-                <option value="Indisciplina">Indisciplina</option>
-                <option value="Falta de Material">Falta de Material</option>
-                <option value="Conflito">Conflito entre colegas</option>
-                <option value="Elogio">Elogio/Destaque Positivo</option>
-                <option value="Outros">Outros</option>
-            </select>
-        </div>
-        <div class="form-group">
-            <label for="descricao">Descrição dos Fatos:</label>
-            <textarea id="descricao" rows="4" placeholder="Descreva o que aconteceu..."></textarea>
-        </div>
-        <button id="btn-registrar">Registrar Ocorrência</button>
-    </div>
 
-    <!-- Histórico (Restrito para Professores e Diretores) -->
-    <div id="secao-historico" class="lista-ocorrencias">
-        <h2>Histórico de Ocorrências</h2>
-        <br>
-        <div id="display-ocorrencias">Carregando...</div>
-    </div>
-</div>
+    <script>
+        // Dados temporários em memória (simulando um Banco de Dados offline)
+        let currentUser = null;
+        let occurrences = [
+            { id: 1, aluno: "Lucas Gabriel", tipo: "Indisciplina", desc: "Uso do celular em sala de aula.", status: "Pendente" },
+            { id: 2, aluno: "Beatriz Lima", tipo: "Elogio", desc: "Ajuda aos colegas durante o trabalho em grupo.", status: "Resolvida" }
+        ];
 
-<script>
-    const API_URL = '/api/ocorrencias';
-    
-    // Estado da sessão do usuário
-    let usuarioAtual = null;
+        // Lógica de Abas (Entrar / Cadastrar)
+        function switchTab(mode) {
+            const tabLogin = document.getElementById('tab-login');
+            const tabRegister = document.getElementById('tab-register');
+            const formLogin = document.getElementById('form-login');
+            const formRegister = document.getElementById('form-register');
 
-    document.getElementById('btn-registrar').addEventListener('click', salvarOcorrencia);
-
-    // SISTEMA DE AUTENTICAÇÃO E CONTROLE DE PERMISSÕES
-    function fazerLogin() {
-        const nome = document.getElementById('login-nome').value.trim();
-        const cargo = document.getElementById('login-cargo').value;
-
-        if (!nome) {
-            alert("Por favor, digite seu nome.");
-            return;
+            if (mode === 'login') {
+                tabLogin.classList.add('active');
+                tabRegister.classList.remove('active');
+                formLogin.classList.remove('hidden');
+                formRegister.classList.add('hidden');
+            } else {
+                tabRegister.classList.add('active');
+                tabLogin.classList.remove('active');
+                formRegister.classList.remove('hidden');
+                formLogin.classList.add('hidden');
+            }
         }
 
-        usuarioAtual = { nome, cargo };
-        document.getElementById('login-overlay').classList.add('hidden');
-        document.getElementById('user-display').innerHTML = `${usuarioAtual.nome} <br> <span>(${cargo.toUpperCase()})</span>`;
-
-        aplicarPermissoes();
-    }
-
-    function fazerLogout() {
-        usuarioAtual = null;
-        document.getElementById('login-nome').value = '';
-        document.getElementById('login-overlay').classList.remove('hidden');
-    }
-
-    function aplicarPermissoes() {
-        const secaoHistorico = document.getElementById('secao-historico');
-        
-        // Funcionário: Pode SOMENTE lançar ocorrências
-        if (usuarioAtual.cargo === 'funcionario') {
-            secaoHistorico.classList.add('hidden');
-        } else {
-            // Professor e Diretor: Podem visualizar o histórico
-            secaoHistorico.classList.remove('hidden');
-            mostrarOcorrencias();
+        // Alternar Visibilidade da Senha (Ícone de Olho)
+        function togglePasswordVisibility(inputId, btn) {
+            const input = document.getElementById(inputId);
+            if (input.type === "password") {
+                input.type = "text";
+                btn.style.color = "var(--purple-primary)";
+            } else {
+                input.type = "password";
+                btn.style.color = "var(--text-muted)";
+            }
         }
-    }
 
-    // FUNÇÕES DA API
-    async function mostrarOcorrencias() {
-        if (usuarioAtual.cargo === 'funcionario') return;
+        // Autenticação (Login / Cadastro)
+        function handleAuth(event) {
+            event.preventDefault();
+            
+            const isRegister = !document.getElementById('form-register').classList.contains('hidden');
 
-        const display = document.getElementById('display-ocorrencias');
-        
-        try {
-            const response = await fetch(API_URL);
-            if (!response.ok) throw new Error('Erro ao buscar dados do servidor');
+            if (isRegister) {
+                const name = document.getElementById('reg-name').value;
+                const role = document.getElementById('reg-role').value;
+                const email = document.getElementById('reg-email').value;
+
+                currentUser = { name, role, email };
+            } else {
+                const email = document.getElementById('login-email').value;
+                // Simulação simples: define como Diretor por padrão se for um e-mail de teste
+                currentUser = { 
+                    name: email.split('@')[0], 
+                    role: 'diretor', 
+                    email 
+                };
+            }
+
+            iniciarSessao();
+        }
+
+        function iniciarSessao() {
+            document.getElementById('auth-screen').classList.add('hidden');
+            document.getElementById('app-screen').classList.remove('hidden');
+
+            document.getElementById('user-display-name').innerText = currentUser.name;
+            document.getElementById('user-display-role').innerText = currentUser.role.toUpperCase();
+
+            // Aplica as permissões estipuladas por cargo
+            const secHistorico = document.getElementById('sec-historico');
             
-            const data = await response.json();
-            
-            display.innerHTML = data.length === 0 ? '<p>Nenhum registro encontrado.</p>' : '';
-            
-            data.forEach(oc => {
-                const statusAtual = oc.status || 'Pendente';
-                const div = document.createElement('div');
-                div.className = 'item-ocorrencia';
-                
-                let controleStatusHTML = `<span class="badge-status status-${statusAtual.toLowerCase().replace(' ', '')}">${statusAtual}</span>`;
-                
-                // Diretor pode alterar o status da ocorrência
-                if (usuarioAtual.cargo === 'diretor') {
-                    controleStatusHTML = `
-                        <select class="select-status-inline" onchange="alterarStatus('${oc.id}', this.value)">
-                            <option value="Pendente" ${statusAtual === 'Pendente' ? 'selected' : ''}>Pendente</option>
-                            <option value="Em andamento" ${statusAtual === 'Em andamento' ? 'selected' : ''}>Em andamento</option>
-                            <option value="Resolvida" ${statusAtual === 'Resolvida' ? 'selected' : ''}>Resolvida</option>
+            if (currentUser.role === 'funcionario') {
+                // Funcionário: Pode SOMENTE lançar ocorrências
+                secHistorico.classList.add('hidden');
+            } else {
+                // Professor / Diretor: Podem visualizar o histórico
+                secHistorico.classList.remove('hidden');
+                renderOcorrencias();
+            }
+        }
+
+        function logout() {
+            currentUser = null;
+            document.getElementById('app-screen').classList.add('hidden');
+            document.getElementById('auth-screen').classList.remove('hidden');
+        }
+
+        // Renderização da Lista de Ocorrências
+        function renderOcorrencias() {
+            const container = document.getElementById('lista-ocorrencias');
+            container.innerHTML = '';
+
+            if (occurrences.length === 0) {
+                container.innerHTML = '<p style="color:var(--text-muted);">Nenhuma ocorrência registrada.</p>';
+                return;
+            }
+
+            occurrences.forEach(oc => {
+                const card = document.createElement('div');
+                card.className = 'occurrence-card';
+
+                let statusControl = `<span class="badge-status status-${oc.status.toLowerCase().replace(' ', '_')}">${oc.status}</span>`;
+
+                // Diretor: pode modificar o status para resolvida, em andamento e pendente
+                if (currentUser.role === 'diretor') {
+                    statusControl = `
+                        <select onchange="alterarStatus(${oc.id}, this.value)" class="input-control" style="padding:4px 8px; width:auto; font-size:12px;">
+                            <option value="Pendente" ${oc.status === 'Pendente' ? 'selected':''}>Pendente</option>
+                            <option value="Em andamento" ${oc.status === 'Em andamento' ? 'selected':''}>Em andamento</option>
+                            <option value="Resolvida" ${oc.status === 'Resolvida' ? 'selected':''}>Resolvida</option>
                         </select>
                     `;
                 }
 
-                // Botão de exclusão exclusivo para Diretor
-                const btnExcluirHTML = usuarioAtual.cargo === 'diretor' 
-                    ? `<button class="btn-excluir" onclick="excluirOcorrencia('${oc.id}')">Excluir</button>` 
-                    : '';
-
-                div.innerHTML = `
-                    <div class="item-ocorrencia-header">
-                        <h3>${oc.aluno}</h3>
-                        <span class="badge-tipo">(${oc.tipo})</span>
+                card.innerHTML = `
+                    <div class="occurrence-header">
+                        <strong>${oc.aluno}</strong>
+                        <span style="font-size:12px; color:var(--purple-light);">${oc.tipo}</span>
                     </div>
-                    <p>${oc.descricao}</p>
-                    <div class="status-container">
-                        <strong>Status:</strong> ${controleStatusHTML}
+                    <p style="font-size:14px; color:var(--text-muted); margin-bottom:12px;">${oc.desc}</p>
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <small style="color:#524d68;">Status:</small>
+                        ${statusControl}
                     </div>
-                    ${btnExcluirHTML}
                 `;
-                display.appendChild(div);
+                container.appendChild(card);
             });
-        } catch (error) {
-            display.innerHTML = "Erro de acesso: " + error.message;
-        }
-    }
-
-    async function salvarOcorrencia() {
-        const aluno = document.getElementById('aluno').value;
-        const tipo = document.getElementById('tipo').value;
-        const desc = document.getElementById('descricao').value;
-
-        if (!aluno || !desc) {
-            alert("Por favor, preencha todos os campos.");
-            return;
         }
 
-        try {
-            const response = await fetch(API_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
-                    aluno, 
-                    tipo, 
-                    descricao: desc, 
-                    status: 'Pendente',
-                    autor: usuarioAtual.nome 
-                })
-            });
+        function cadastrarOcorrencia(event) {
+            event.preventDefault();
 
-            if (response.ok) {
-                document.getElementById('aluno').value = '';
-                document.getElementById('descricao').value = '';
-                alert("Ocorrência registrada com sucesso!");
-                if (usuarioAtual.cargo !== 'funcionario') {
-                    mostrarOcorrencias();
-                }
-            } else {
-                const err = await response.json();
-                alert("Erro ao salvar: " + err.error);
+            const aluno = document.getElementById('oc-aluno').value;
+            const tipo = document.getElementById('oc-tipo').value;
+            const desc = document.getElementById('oc-desc').value;
+
+            const novaOc = {
+                id: Date.now(),
+                aluno,
+                tipo,
+                desc,
+                status: 'Pendente'
+            };
+
+            occurrences.unshift(novaOc);
+
+            document.getElementById('oc-aluno').value = '';
+            document.getElementById('oc-desc').value = '';
+
+            alert('Ocorrência lançada com sucesso!');
+
+            if (currentUser.role !== 'funcionario') {
+                renderOcorrencias();
             }
-        } catch (error) {
-            alert("Erro na conexão com o servidor.");
         }
-    }
 
-    async function alterarStatus(id, novoStatus) {
-        try {
-            const response = await fetch(`${API_URL}/${id}`, {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ status: novoStatus })
-            });
-
-            if (!response.ok) {
-                alert("Erro ao atualizar status.");
-                mostrarOcorrencias();
+        function alterarStatus(id, novoStatus) {
+            const item = occurrences.find(o => o.id === id);
+            if (item) {
+                item.status = novoStatus;
+                renderOcorrencias();
             }
-        } catch (error) {
-            alert("Erro na conexão ao alterar status.");
         }
-    }
-
-    async function excluirOcorrencia(id) {
-        if (!confirm("Tem certeza que deseja excluir esta ocorrência?")) return;
-
-        try {
-            const response = await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
-
-            if (response.ok) {
-                mostrarOcorrencias();
-            } else {
-                alert("Erro ao excluir.");
-            }
-        } catch (error) {
-            alert("Erro na conexão.");
-        }
-    }
-</script>
+    </script>
 </body>
 </html>
