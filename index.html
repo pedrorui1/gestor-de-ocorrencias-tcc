@@ -407,12 +407,12 @@
             <!-- Login -->
             <form id="form-login" onsubmit="handleAuth(event)">
                 <div class="form-group">
-                    <label>E-mail</label>
-                    <input type="email" id="login-email" class="input-control" placeholder="seu@email.com" required>
+                    <label>E-mail (Apenas Gmail)</label>
+                    <input type="email" id="login-email" class="input-control" placeholder="seuemail@gmail.com" required>
                 </div>
                 <div class="form-group">
                     <label>Senha</label>
-                    <input type="password" id="login-password" class="input-control" placeholder="Mínimo 6 caracteres" required>
+                    <input type="password" id="login-password" class="input-control" placeholder="Sua senha" required>
                 </div>
                 <button type="submit" class="btn-submit">Entrar</button>
             </form>
@@ -432,12 +432,12 @@
                     </select>
                 </div>
                 <div class="form-group">
-                    <label>E-mail</label>
-                    <input type="email" id="reg-email" class="input-control" placeholder="seu@email.com" required>
+                    <label>E-mail (Apenas Gmail)</label>
+                    <input type="email" id="reg-email" class="input-control" placeholder="seuemail@gmail.com" required>
                 </div>
                 <div class="form-group">
-                    <label>Senha</label>
-                    <input type="password" class="input-control" placeholder="Mínimo 6 caracteres" required>
+                    <label>Senha Segura</label>
+                    <input type="password" id="reg-password" class="input-control" placeholder="Evite senhas fáceis como 123456" required>
                 </div>
                 <button type="submit" class="btn-submit">Criar Conta</button>
             </form>
@@ -620,6 +620,12 @@
         let currentUser = null;
         let occurrences = [];
 
+        // Senhas fáceis/genéricas proibidas no cadastro
+        const senhasProibidas = [
+            "123456", "12345678", "123456789", "senha", "admin", "111111", 
+            "000000", "qwerty", "123321", "mudar123", "escola", "12345"
+        ];
+
         // Definir a data atual padrão no campo de data
         document.addEventListener('DOMContentLoaded', () => {
             const today = new Date().toISOString().split('T')[0];
@@ -640,11 +646,38 @@
             if (isRegister) {
                 const name = document.getElementById('reg-name').value;
                 const role = document.getElementById('reg-role').value;
-                currentUser = { name, role };
+                const email = document.getElementById('reg-email').value.trim().toLowerCase();
+                const password = document.getElementById('reg-password').value;
+
+                // 1. Validação de Gmail
+                if (!email.endsWith('@gmail.com')) {
+                    alert('Acesso permitido apenas com contas @gmail.com!');
+                    return;
+                }
+
+                // 2. Validação de Senha Genérica / Fraca
+                if (password.length < 6) {
+                    alert('A senha deve conter no mínimo 6 caracteres!');
+                    return;
+                }
+
+                if (senhasProibidas.includes(password.toLowerCase())) {
+                    alert('Esta senha é muito simples e genérica! Crie uma senha mais segura.');
+                    return;
+                }
+
+                currentUser = { name, role, email };
             } else {
-                const email = document.getElementById('login-email').value;
+                const email = document.getElementById('login-email').value.trim().toLowerCase();
+
+                // 1. Validação de Gmail no Login
+                if (!email.endsWith('@gmail.com')) {
+                    alert('Acesso permitido apenas com e-mails @gmail.com!');
+                    return;
+                }
+
                 const name = email.split('@')[0];
-                currentUser = { name, role: 'diretor' };
+                currentUser = { name, role: 'diretor', email };
             }
 
             iniciarDashboard();
