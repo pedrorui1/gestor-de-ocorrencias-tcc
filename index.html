@@ -5,29 +5,234 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestor de Ocorrências Escolares</title>
     <style>
-        :root { --primary: #2c3e50; --secondary: #34495e; --accent: #3498db; --danger: #e74c3c; --light: #ecf0f1; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--light); margin: 0; padding: 20px; }
-        .container { max-width: 800px; margin: auto; background: white; padding: 25px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        h1 { color: var(--primary); text-align: center; }
+        :root {
+            --bg-body: #121214;
+            --bg-card: #1e1e24;
+            --bg-input: #2a2a32;
+            --primary: #9d4edd;
+            --primary-hover: #7b2cbf;
+            --text-main: #f0f0f5;
+            --text-muted: #a0a0b0;
+            --danger: #ff4d4d;
+            --border: #383842;
+            
+            /* Status Colors */
+            --status-pendente: #ffb703;
+            --status-andamento: #00b4d8;
+            --status-resolvida: #06d6a0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: var(--bg-card);
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--border);
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+
+        h1, h2, h3 { color: var(--text-main); margin: 0; }
+
+        .user-info {
+            font-size: 14px;
+            color: var(--text-muted);
+            text-align: right;
+        }
+
+        .user-info span {
+            color: var(--primary);
+            font-weight: bold;
+        }
+
+        .btn-logout {
+            background: transparent;
+            border: 1px solid var(--danger);
+            color: var(--danger);
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 5px;
+            width: auto;
+        }
+
+        .btn-logout:hover {
+            background: var(--danger);
+            color: white;
+        }
+
         .form-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; font-weight: bold; }
-        input, select, textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }
-        button { background: var(--accent); color: white; border: none; padding: 12px 20px; border-radius: 4px; cursor: pointer; width: 100%; font-size: 16px; transition: 0.3s; }
-        button:hover { background: #2980b9; }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text-main);
+            box-sizing: border-box;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: 2px solid var(--primary);
+        }
+
+        button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+
+        button:hover { background: var(--primary-hover); }
+
         .lista-ocorrencias { margin-top: 30px; }
-        .item-ocorrencia { background: #f9f9f9; padding: 15px; border-left: 5px solid var(--accent); margin-bottom: 10px; position: relative; border-radius: 0 4px 4px 0; }
-        .item-ocorrencia h3 { margin: 0 0 5px 0; color: var(--secondary); }
-        .item-ocorrencia p { margin: 5px 0; font-size: 14px; color: #555; }
-        .btn-excluir { background: var(--danger); width: auto; padding: 5px 10px; margin-top: 10px; font-size: 12px; color: white; border: none; border-radius: 4px; cursor: pointer; }
-        .data { font-style: italic; font-size: 12px; color: #888; }
+
+        .item-ocorrencia {
+            background: #25252e;
+            padding: 15px;
+            border-left: 5px solid var(--primary);
+            margin-bottom: 15px;
+            border-radius: 0 8px 8px 0;
+            border-top: 1px solid var(--border);
+            border-right: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .item-ocorrencia-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .item-ocorrencia p { margin: 10px 0; font-size: 14px; color: var(--text-muted); }
+
+        .badge-tipo { font-size: 12px; color: var(--primary); font-style: italic; }
+
+        .status-container {
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+        }
+
+        .badge-status {
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .status-pendente { background: var(--status-pendente); color: #000; }
+        .status-andamento { background: var(--status-andamento); color: #000; }
+        .status-resolvida { background: var(--status-resolvida); color: #000; }
+
+        .btn-excluir {
+            background: var(--danger);
+            width: auto;
+            padding: 6px 12px;
+            margin-top: 10px;
+            font-size: 12px;
+        }
+
+        .select-status-inline {
+            width: auto;
+            padding: 4px 8px;
+            font-size: 12px;
+        }
+
+        /* Modal / Tela de Login */
+        .login-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .login-box {
+            background: var(--bg-card);
+            padding: 30px;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 350px;
+            border: 1px solid var(--border);
+            box-shadow: 0 0 20px rgba(157, 78, 221, 0.2);
+        }
+
+        .hidden { display: none !important; }
     </style>
 </head>
 <body>
 
+<!-- Tela de Login -->
+<div id="login-overlay" class="login-overlay">
+    <div class="login-box">
+        <h2 style="text-align: center; margin-bottom: 20px;">🔒 Acesso ao Sistema</h2>
+        <div class="form-group">
+            <label for="login-cargo">Selecione seu Cargo:</label>
+            <select id="login-cargo">
+                <option value="funcionario">Funcionário (Apenas Lançar)</option>
+                <option value="professor">Professor (Lançar e Visualizar)</option>
+                <option value="diretor">Diretor (Acesso Total)</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="login-nome">Nome do Usuário:</label>
+            <input type="text" id="login-nome" placeholder="Digite seu nome">
+        </div>
+        <button onclick="fazerLogin()">Entrar</button>
+    </div>
+</div>
+
+<!-- Aplicação Principal -->
 <div class="container">
-    <h1>📝 Registro de Ocorrências</h1>
+    <div class="header">
+        <h1>📝 Gestor de Ocorrências</h1>
+        <div class="user-info">
+            <div id="user-display"></div>
+            <button class="btn-logout" onclick="fazerLogout()">Sair</button>
+        </div>
+    </div>
     
+    <!-- Formulário de Registro (Acessível para todos os cargos) -->
     <div id="form-ocorrencia">
+        <h2>Nova Ocorrência</h2>
+        <br>
         <div class="form-group">
             <label for="aluno">Nome do Aluno:</label>
             <input type="text" id="aluno" placeholder="Ex: João Silva">
@@ -49,26 +254,62 @@
         <button id="btn-registrar">Registrar Ocorrência</button>
     </div>
 
-    <div class="lista-ocorrencias">
-        <h2>Histórico (Banco de Dados)</h2>
+    <!-- Histórico (Restrito para Professores e Diretores) -->
+    <div id="secao-historico" class="lista-ocorrencias">
+        <h2>Histórico de Ocorrências</h2>
+        <br>
         <div id="display-ocorrencias">Carregando...</div>
     </div>
 </div>
 
-<!-- 1. Carrega o SDK de uma fonte alternativa (unpkg) -->
-<script src="https://unpkg.com"></script>
-
-<!-- Código HTML e CSS anterior permanece igual -->
-
 <script>
-    // URL da sua API local. Quando enviar para produção (Ex: Render, Vercel), mude para a URL de lá.
     const API_URL = '/api/ocorrencias';
+    
+    // Estado da sessão do usuário
+    let usuarioAtual = null;
 
-    // Vincular o evento de clique ao botão de registrar
     document.getElementById('btn-registrar').addEventListener('click', salvarOcorrencia);
 
-    // FUNÇÃO PARA BUSCAR DADOS
+    // SISTEMA DE AUTENTICAÇÃO E CONTROLE DE PERMISSÕES
+    function fazerLogin() {
+        const nome = document.getElementById('login-nome').value.trim();
+        const cargo = document.getElementById('login-cargo').value;
+
+        if (!nome) {
+            alert("Por favor, digite seu nome.");
+            return;
+        }
+
+        usuarioAtual = { nome, cargo };
+        document.getElementById('login-overlay').classList.add('hidden');
+        document.getElementById('user-display').innerHTML = `${usuarioAtual.nome} <br> <span>(${cargo.toUpperCase()})</span>`;
+
+        aplicarPermissoes();
+    }
+
+    function fazerLogout() {
+        usuarioAtual = null;
+        document.getElementById('login-nome').value = '';
+        document.getElementById('login-overlay').classList.remove('hidden');
+    }
+
+    function aplicarPermissoes() {
+        const secaoHistorico = document.getElementById('secao-historico');
+        
+        // Funcionário: Pode SOMENTE lançar ocorrências
+        if (usuarioAtual.cargo === 'funcionario') {
+            secaoHistorico.classList.add('hidden');
+        } else {
+            // Professor e Diretor: Podem visualizar o histórico
+            secaoHistorico.classList.remove('hidden');
+            mostrarOcorrencias();
+        }
+    }
+
+    // FUNÇÕES DA API
     async function mostrarOcorrencias() {
+        if (usuarioAtual.cargo === 'funcionario') return;
+
         const display = document.getElementById('display-ocorrencias');
         
         try {
@@ -80,12 +321,38 @@
             display.innerHTML = data.length === 0 ? '<p>Nenhum registro encontrado.</p>' : '';
             
             data.forEach(oc => {
+                const statusAtual = oc.status || 'Pendente';
                 const div = document.createElement('div');
                 div.className = 'item-ocorrencia';
+                
+                let controleStatusHTML = `<span class="badge-status status-${statusAtual.toLowerCase().replace(' ', '')}">${statusAtual}</span>`;
+                
+                // Diretor pode alterar o status da ocorrência
+                if (usuarioAtual.cargo === 'diretor') {
+                    controleStatusHTML = `
+                        <select class="select-status-inline" onchange="alterarStatus('${oc.id}', this.value)">
+                            <option value="Pendente" ${statusAtual === 'Pendente' ? 'selected' : ''}>Pendente</option>
+                            <option value="Em andamento" ${statusAtual === 'Em andamento' ? 'selected' : ''}>Em andamento</option>
+                            <option value="Resolvida" ${statusAtual === 'Resolvida' ? 'selected' : ''}>Resolvida</option>
+                        </select>
+                    `;
+                }
+
+                // Botão de exclusão exclusivo para Diretor
+                const btnExcluirHTML = usuarioAtual.cargo === 'diretor' 
+                    ? `<button class="btn-excluir" onclick="excluirOcorrencia('${oc.id}')">Excluir</button>` 
+                    : '';
+
                 div.innerHTML = `
-                    <h3>${oc.aluno} <span class="data">(${oc.tipo})</span></h3>
-                    <p>${oc.descricao}</p> 
-                    <button class="btn-excluir" onclick="excluirOcorrencia('${oc.id}')">Excluir</button>
+                    <div class="item-ocorrencia-header">
+                        <h3>${oc.aluno}</h3>
+                        <span class="badge-tipo">(${oc.tipo})</span>
+                    </div>
+                    <p>${oc.descricao}</p>
+                    <div class="status-container">
+                        <strong>Status:</strong> ${controleStatusHTML}
+                    </div>
+                    ${btnExcluirHTML}
                 `;
                 display.appendChild(div);
             });
@@ -94,7 +361,6 @@
         }
     }
 
-    // FUNÇÃO PARA SALVAR
     async function salvarOcorrencia() {
         const aluno = document.getElementById('aluno').value;
         const tipo = document.getElementById('tipo').value;
@@ -109,13 +375,22 @@
             const response = await fetch(API_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ aluno, tipo, descricao: desc })
+                body: JSON.stringify({ 
+                    aluno, 
+                    tipo, 
+                    descricao: desc, 
+                    status: 'Pendente',
+                    autor: usuarioAtual.nome 
+                })
             });
 
             if (response.ok) {
                 document.getElementById('aluno').value = '';
                 document.getElementById('descricao').value = '';
-                mostrarOcorrencias();
+                alert("Ocorrência registrada com sucesso!");
+                if (usuarioAtual.cargo !== 'funcionario') {
+                    mostrarOcorrencias();
+                }
             } else {
                 const err = await response.json();
                 alert("Erro ao salvar: " + err.error);
@@ -125,7 +400,23 @@
         }
     }
 
-    // FUNÇÃO PARA EXCLUIR
+    async function alterarStatus(id, novoStatus) {
+        try {
+            const response = await fetch(`${API_URL}/${id}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status: novoStatus })
+            });
+
+            if (!response.ok) {
+                alert("Erro ao atualizar status.");
+                mostrarOcorrencias();
+            }
+        } catch (error) {
+            alert("Erro na conexão ao alterar status.");
+        }
+    }
+
     async function excluirOcorrencia(id) {
         if (!confirm("Tem certeza que deseja excluir esta ocorrência?")) return;
 
@@ -141,9 +432,6 @@
             alert("Erro na conexão.");
         }
     }
-
-    // Inicia tudo quando a página carregar
-    window.onload = mostrarOcorrencias;
 </script>
 </body>
 </html>
