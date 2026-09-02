@@ -134,6 +134,40 @@
 
         .input-control:focus { border-color: var(--purple-primary); }
 
+        .password-wrapper {
+            position: relative;
+        }
+
+        .password-wrapper .input-control {
+            padding-right: 48px;
+        }
+
+        .btn-show-password {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-show-password:hover {
+            color: var(--purple-light);
+        }
+
+        .password-hint {
+            display: block;
+            margin-top: 6px;
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
         .btn-submit {
             width: 100%;
             background-color: var(--purple-primary);
@@ -444,8 +478,20 @@
                     <input type="email" id="reg-email" class="input-control" placeholder="usuario@gmail.com ou @gov.br" required>
                 </div>
                 <div class="form-group">
-                    <label>Senha Segura</label>
-                    <input type="password" id="reg-password" class="input-control" placeholder="Evite senhas fáceis como 123456" required>
+                    <label>Senha Segura *</label>
+                    <div class="password-wrapper">
+                        <input type="password" id="reg-password" class="input-control"
+                               placeholder="Mínimo 6 caracteres e 1 caractere especial"
+                               minlength="6"
+                               required>
+                        <button type="button" class="btn-show-password" onclick="mostrarSenhaRegistro()" aria-label="Mostrar senha" title="Mostrar senha">
+                            <svg id="icon-show-password" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/>
+                                <circle cx="12" cy="12" r="3"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <span class="password-hint">A senha deve ter no mínimo 6 caracteres e pelo menos 1 caractere especial (ex.: ! @ # $ %).</span>
                 </div>
                 <button type="submit" class="btn-submit">Criar Conta</button>
             </form>
@@ -685,6 +731,32 @@
             document.getElementById('form-register').classList.toggle('hidden', mode !== 'register');
         }
 
+        function mostrarSenhaRegistro() {
+            const passwordInput = document.getElementById('reg-password');
+            const button = document.querySelector('.btn-show-password');
+            const icon = document.getElementById('icon-show-password');
+
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                button.setAttribute('aria-label', 'Ocultar senha');
+                button.setAttribute('title', 'Ocultar senha');
+                icon.innerHTML = `
+                    <path d="M3 3l18 18"/>
+                    <path d="M10.58 10.58a2 2 0 0 0 2.83 2.83"/>
+                    <path d="M9.88 5.09A10.94 10.94 0 0 1 12 5c6.5 0 10 7 10 7a18.23 18.23 0 0 1-3.17 3.84"/>
+                    <path d="M6.61 6.61C3.93 8.28 2 12 2 12s3.5 7 10 7a9.84 9.84 0 0 0 3.19-.53"/>
+                `;
+            } else {
+                passwordInput.type = 'password';
+                button.setAttribute('aria-label', 'Mostrar senha');
+                button.setAttribute('title', 'Mostrar senha');
+                icon.innerHTML = `
+                    <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/>
+                    <circle cx="12" cy="12" r="3"/>
+                `;
+            }
+        }
+
         function handleAuth(e) {
             e.preventDefault();
             const isRegister = !document.getElementById('form-register').classList.contains('hidden');
@@ -708,9 +780,15 @@
                     return;
                 }
 
-                // 3. Validação de Senha Genérica / Fraca
+                // 3. Validação de Senha: mínimo de 6 caracteres + caractere especial
                 if (password.length < 6) {
                     alert('A senha deve conter no mínimo 6 caracteres!');
+                    return;
+                }
+
+                const possuiCaractereEspecial = /[^A-Za-z0-9]/.test(password);
+                if (!possuiCaractereEspecial) {
+                    alert('A senha deve conter pelo menos 1 caractere especial, como ! @ # $ %.');
                     return;
                 }
 
