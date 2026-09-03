@@ -1,973 +1,2318 @@
 <!DOCTYPE html>
+
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dark Ocorrência - Dashboard</title>
-    <style>
-        :root {
-            --bg-body: #09070f;
-            --sidebar-bg: #100d1a;
-            --card-bg: #151121;
-            --card-border: #231c33;
-            --input-bg: #1b162a;
-            --input-border: #2e2645;
-            --purple-primary: #8b5cf6;
-            --purple-hover: #7c3aed;
-            --purple-light: #a78bfa;
-            --text-main: #ffffff;
-            --text-muted: #8c85a1;
-            --danger: #ef4444;
 
-            /* Cores dos Cards de Métricas */
-            --card-total-bg: rgba(139, 92, 246, 0.1);
-            --card-total-border: rgba(139, 92, 246, 0.3);
-            
-            --card-abertas-bg: rgba(245, 158, 11, 0.1);
-            --card-abertas-border: rgba(245, 158, 11, 0.3);
-            --card-abertas-color: #f59e0b;
+```
+<style>
+    :root {
+        --bg-body: #09070f;
+        --sidebar-bg: #100d1a;
+        --card-bg: #151121;
+        --card-border: #231c33;
+        --input-bg: #1b162a;
+        --input-border: #2e2645;
+        --purple-primary: #8b5cf6;
+        --purple-hover: #7c3aed;
+        --purple-light: #a78bfa;
+        --text-main: #ffffff;
+        --text-muted: #8c85a1;
+        --danger: #ef4444;
 
-            --card-andamento-bg: rgba(59, 130, 246, 0.1);
-            --card-andamento-border: rgba(59, 130, 246, 0.3);
-            --card-andamento-color: #3b82f6;
+        --card-total-bg: rgba(139, 92, 246, 0.1);
+        --card-total-border: rgba(139, 92, 246, 0.3);
 
-            --card-resolvidas-bg: rgba(16, 185, 129, 0.1);
-            --card-resolvidas-border: rgba(16, 185, 129, 0.3);
-            --card-resolvidas-color: #10b981;
+        --card-abertas-bg: rgba(245, 158, 11, 0.1);
+        --card-abertas-border: rgba(245, 158, 11, 0.3);
+        --card-abertas-color: #f59e0b;
+
+        --card-andamento-bg: rgba(59, 130, 246, 0.1);
+        --card-andamento-border: rgba(59, 130, 246, 0.3);
+        --card-andamento-color: #3b82f6;
+
+        --card-resolvidas-bg: rgba(16, 185, 129, 0.1);
+        --card-resolvidas-border: rgba(16, 185, 129, 0.3);
+        --card-resolvidas-color: #10b981;
+    }
+
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    }
+
+    body {
+        background-color: var(--bg-body);
+        color: var(--text-main);
+        min-height: 100vh;
+    }
+
+    /* =========================
+       AUTENTICAÇÃO
+    ========================= */
+
+    .auth-container {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+        background: radial-gradient(circle at top, #1a0b2e 0%, var(--bg-body) 60%);
+    }
+
+    .brand-icon {
+        width: 60px;
+        height: 60px;
+        background: #1e1238;
+        border: 1px solid #3d2770;
+        border-radius: 16px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-bottom: 16px;
+    }
+
+    .brand-icon svg {
+        width: 30px;
+        height: 30px;
+        stroke: var(--purple-light);
+        fill: none;
+        stroke-width: 2;
+    }
+
+    .brand-title {
+        font-size: 28px;
+        font-weight: 800;
+        margin-bottom: 4px;
+    }
+
+    .brand-subtitle {
+        color: var(--text-muted);
+        font-size: 14px;
+        margin-bottom: 24px;
+    }
+
+    .auth-card {
+        background-color: var(--card-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 16px;
+        padding: 24px;
+        width: 100%;
+        max-width: 440px;
+    }
+
+    .tab-switcher {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        background-color: var(--input-bg);
+        padding: 4px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        border: 1px solid var(--input-border);
+    }
+
+    .tab-btn {
+        background: transparent;
+        border: none;
+        color: var(--text-muted);
+        padding: 10px;
+        font-size: 14px;
+        font-weight: 600;
+        border-radius: 8px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    .tab-btn.active {
+        background-color: var(--purple-primary);
+        color: #fff;
+    }
+
+    .form-group {
+        margin-bottom: 16px;
+    }
+
+    .form-group label {
+        display: block;
+        font-size: 13px;
+        font-weight: 600;
+        margin-bottom: 6px;
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+    }
+
+    .input-control {
+        width: 100%;
+        background-color: var(--input-bg);
+        border: 1px solid var(--input-border);
+        border-radius: 8px;
+        padding: 12px 14px;
+        color: var(--text-main);
+        font-size: 14px;
+        outline: none;
+    }
+
+    .input-control:focus {
+        border-color: var(--purple-primary);
+    }
+
+    /* =========================
+       CAMPO DE SENHA
+    ========================= */
+
+    .password-wrapper {
+        position: relative;
+    }
+
+    .password-wrapper .input-control {
+        padding-right: 48px;
+    }
+
+    .btn-show-password {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: transparent;
+        border: none;
+        color: var(--text-muted);
+        cursor: pointer;
+        padding: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .btn-show-password:hover {
+        color: var(--purple-light);
+    }
+
+    .password-hint {
+        display: block;
+        margin-top: 6px;
+        font-size: 11px;
+        color: var(--text-muted);
+    }
+
+    .btn-submit {
+        width: 100%;
+        background-color: var(--purple-primary);
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        padding: 12px;
+        font-size: 15px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+    .btn-submit:hover {
+        background-color: var(--purple-hover);
+    }
+
+    /* =========================
+       DASHBOARD
+    ========================= */
+
+    .app-layout {
+        display: flex;
+        min-height: 100vh;
+    }
+
+    .sidebar {
+        width: 260px;
+        background-color: var(--sidebar-bg);
+        border-right: 1px solid var(--card-border);
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        padding: 20px 16px;
+    }
+
+    .sidebar-brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 30px;
+        padding: 0 8px;
+    }
+
+    .sidebar-brand-icon {
+        width: 36px;
+        height: 36px;
+        background: #1e1238;
+        border: 1px solid #3d2770;
+        border-radius: 10px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .sidebar-brand-text h3 {
+        font-size: 16px;
+        font-weight: 800;
+        line-height: 1.2;
+    }
+
+    .sidebar-brand-text span {
+        font-size: 10px;
+        color: var(--purple-light);
+        font-weight: 700;
+        letter-spacing: 1px;
+    }
+
+    .nav-list {
+        list-style: none;
+    }
+
+    .nav-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 16px;
+        border-radius: 10px;
+        color: var(--text-muted);
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        margin-bottom: 6px;
+        transition: 0.2s;
+    }
+
+    .nav-item:hover {
+        color: var(--text-main);
+        background: rgba(255,255,255,0.03);
+    }
+
+    .nav-item.active {
+        background-color: #1e1433;
+        color: var(--purple-light);
+    }
+
+    .sidebar-user {
+        background-color: var(--card-bg);
+        border: 1px solid var(--card-border);
+        padding: 12px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .avatar {
+        width: 38px;
+        height: 38px;
+        background: #2a1b4e;
+        color: var(--purple-light);
+        font-weight: bold;
+        border-radius: 8px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .user-details h4 {
+        font-size: 14px;
+        font-weight: 700;
+    }
+
+    .user-details span {
+        font-size: 12px;
+        color: var(--text-muted);
+        text-transform: capitalize;
+    }
+
+    .main-content {
+        flex: 1;
+        padding: 32px 40px;
+        overflow-y: auto;
+    }
+
+    .top-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 28px;
+    }
+
+    .top-bar h1 {
+        font-size: 26px;
+        font-weight: 800;
+    }
+
+    .top-bar p {
+        color: var(--text-muted);
+        font-size: 14px;
+        margin-top: 2px;
+    }
+
+    .role-badge {
+        background: var(--input-bg);
+        border: 1px solid var(--input-border);
+        padding: 8px 16px;
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .metrics-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 16px;
+        margin-bottom: 28px;
+    }
+
+    @media (max-width: 1024px) {
+        .metrics-grid {
+            grid-template-columns: repeat(2, 1fr);
         }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-        }
-
-        body {
-            background-color: var(--bg-body);
-            color: var(--text-main);
-            min-height: 100vh;
-        }
-
-        /* --- TELA DE AUTENTICAÇÃO --- */
-        .auth-container {
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-            background: radial-gradient(circle at top, #1a0b2e 0%, var(--bg-body) 60%);
-        }
-
-        .brand-icon {
-            width: 60px;
-            height: 60px;
-            background: #1e1238;
-            border: 1px solid #3d2770;
-            border-radius: 16px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-bottom: 16px;
-        }
-
-        .brand-icon svg { width: 30px; height: 30px; stroke: var(--purple-light); fill: none; stroke-width: 2; }
-        .brand-title { font-size: 28px; font-weight: 800; margin-bottom: 4px; }
-        .brand-subtitle { color: var(--text-muted); font-size: 14px; margin-bottom: 24px; }
-
-        .auth-card {
-            background-color: var(--card-bg);
-            border: 1px solid var(--card-border);
-            border-radius: 16px;
-            padding: 24px;
-            width: 100%;
-            max-width: 440px;
-        }
-
-        .tab-switcher {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            background-color: var(--input-bg);
-            padding: 4px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            border: 1px solid var(--input-border);
-        }
-
-        .tab-btn {
-            background: transparent;
-            border: none;
-            color: var(--text-muted);
-            padding: 10px;
-            font-size: 14px;
-            font-weight: 600;
-            border-radius: 8px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-
-        .tab-btn.active { background-color: var(--purple-primary); color: #fff; }
-
-        .form-group { margin-bottom: 16px; }
-        .form-group label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; }
 
         .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
+            grid-template-columns: 1fr;
         }
 
-        .input-control {
-            width: 100%;
-            background-color: var(--input-bg);
-            border: 1px solid var(--input-border);
-            border-radius: 8px;
-            padding: 12px 14px;
-            color: var(--text-main);
-            font-size: 14px;
-            outline: none;
-        }
-
-        .input-control:focus { border-color: var(--purple-primary); }
-
-        .password-wrapper {
-            position: relative;
-        }
-
-        .password-wrapper .input-control {
-            padding-right: 48px;
-        }
-
-        .btn-show-password {
-            position: absolute;
-            right: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: transparent;
-            border: none;
-            color: var(--text-muted);
-            cursor: pointer;
-            padding: 6px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .btn-show-password:hover {
-            color: var(--purple-light);
-        }
-
-        .password-hint {
-            display: block;
-            margin-top: 6px;
-            font-size: 11px;
-            color: var(--text-muted);
-        }
-
-        .btn-submit {
-            width: 100%;
-            background-color: var(--purple-primary);
-            color: #fff;
-            border: none;
-            border-radius: 8px;
-            padding: 12px;
-            font-size: 15px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-
-        .btn-submit:hover { background-color: var(--purple-hover); }
-
-        /* --- LAYOUT DA APLICAÇÃO (DASHBOARD) --- */
-        .app-layout {
-            display: flex;
-            min-height: 100vh;
-        }
-
-        /* Sidebar */
         .sidebar {
-            width: 260px;
-            background-color: var(--sidebar-bg);
-            border-right: 1px solid var(--card-border);
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            padding: 20px 16px;
+            width: 220px;
         }
 
-        .sidebar-brand {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 30px;
-            padding: 0 8px;
-        }
-
-        .sidebar-brand-icon {
-            width: 36px;
-            height: 36px;
-            background: #1e1238;
-            border: 1px solid #3d2770;
-            border-radius: 10px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .sidebar-brand-text h3 { font-size: 16px; font-weight: 800; line-height: 1.2; }
-        .sidebar-brand-text span { font-size: 10px; color: var(--purple-light); font-weight: 700; letter-spacing: 1px; }
-
-        .nav-list { list-style: none; }
-        .nav-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px 16px;
-            border-radius: 10px;
-            color: var(--text-muted);
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            margin-bottom: 6px;
-            transition: 0.2s;
-        }
-
-        .nav-item:hover { color: var(--text-main); background: rgba(255,255,255,0.03); }
-        .nav-item.active { background-color: #1e1433; color: var(--purple-light); }
-
-        .sidebar-user {
-            background-color: var(--card-bg);
-            border: 1px solid var(--card-border);
-            padding: 12px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .avatar {
-            width: 38px;
-            height: 38px;
-            background: #2a1b4e;
-            color: var(--purple-light);
-            font-weight: bold;
-            border-radius: 8px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .user-details h4 { font-size: 14px; font-weight: 700; }
-        .user-details span { font-size: 12px; color: var(--text-muted); text-transform: capitalize; }
-
-        /* Conteúdo Principal */
         .main-content {
-            flex: 1;
-            padding: 32px 40px;
-            overflow-y: auto;
+            padding: 24px;
+        }
+    }
+
+    @media (max-width: 700px) {
+        .app-layout {
+            flex-direction: column;
+        }
+
+        .sidebar {
+            width: 100%;
+        }
+
+        .metrics-grid {
+            grid-template-columns: 1fr;
         }
 
         .top-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 28px;
-        }
-
-        .top-bar h1 { font-size: 26px; font-weight: 800; }
-        .top-bar p { color: var(--text-muted); font-size: 14px; margin-top: 2px; }
-
-        .role-badge {
-            background: var(--input-bg);
-            border: 1px solid var(--input-border);
-            padding: 8px 16px;
-            border-radius: 8px;
-            font-size: 13px;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        /* Grid de Cards de Métricas */
-        .metrics-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 16px;
-            margin-bottom: 28px;
-        }
-
-        @media (max-width: 1024px) {
-            .metrics-grid { grid-template-columns: repeat(2, 1fr); }
-            .form-row { grid-template-columns: 1fr; }
-        }
-
-        .metric-card {
-            background-color: var(--card-bg);
-            border: 1px solid var(--card-border);
-            border-radius: 14px;
-            padding: 20px;
-            position: relative;
-        }
-
-        .metric-card.total { background: var(--card-total-bg); border-color: var(--card-total-border); }
-        .metric-card.abertas { background: var(--card-abertas-bg); border-color: var(--card-abertas-border); }
-        .metric-card.andamento { background: var(--card-andamento-bg); border-color: var(--card-andamento-border); }
-        .metric-card.resolvidas { background: var(--card-resolvidas-bg); border-color: var(--card-resolvidas-border); }
-
-        .metric-card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-        }
-
-        .metric-icon { width: 22px; height: 22px; stroke-width: 2; fill: none; }
-        .metric-card.total .metric-icon { stroke: var(--purple-light); }
-        .metric-card.abertas .metric-icon { stroke: var(--card-abertas-color); }
-        .metric-card.andamento .metric-icon { stroke: var(--card-andamento-color); }
-        .metric-card.resolvidas .metric-icon { stroke: var(--card-resolvidas-color); }
-
-        .metric-value { font-size: 28px; font-weight: 800; margin-bottom: 4px; }
-        .metric-label { font-size: 13px; color: var(--text-muted); font-weight: 600; }
-
-        /* Card de Seção */
-        .section-card {
-            background: var(--card-bg);
-            border: 1px solid var(--card-border);
-            border-radius: 14px;
-            padding: 24px;
-            min-height: 250px;
-        }
-
-        .section-card h3 { font-size: 18px; margin-bottom: 20px; }
-
-        /* Estilização da Lista de Atitudes Inadequadas */
-        .checkbox-group {
-            display: flex;
+            align-items: flex-start;
+            gap: 15px;
             flex-direction: column;
-            gap: 10px;
-            background-color: var(--input-bg);
-            border: 1px solid var(--input-border);
-            border-radius: 8px;
-            padding: 14px;
         }
+    }
 
-        .checkbox-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 14px;
-            color: var(--text-main);
-            cursor: pointer;
-        }
+    .metric-card {
+        background-color: var(--card-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 14px;
+        padding: 20px;
+        position: relative;
+    }
 
-        .checkbox-item input[type="checkbox"] {
-            width: 18px;
-            height: 18px;
-            accent-color: var(--purple-primary);
-            cursor: pointer;
-        }
+    .metric-card.total {
+        background: var(--card-total-bg);
+        border-color: var(--card-total-border);
+    }
 
-        .empty-state {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 180px;
-            color: var(--text-muted);
-            font-size: 14px;
-        }
+    .metric-card.abertas {
+        background: var(--card-abertas-bg);
+        border-color: var(--card-abertas-border);
+    }
 
-        .item-ocorrencia {
-            background: var(--input-bg);
-            border: 1px solid var(--input-border);
-            border-radius: 10px;
-            padding: 16px;
-            margin-bottom: 12px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 16px;
-        }
+    .metric-card.andamento {
+        background: var(--card-andamento-bg);
+        border-color: var(--card-andamento-border);
+    }
 
-        .action-group {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
+    .metric-card.resolvidas {
+        background: var(--card-resolvidas-bg);
+        border-color: var(--card-resolvidas-border);
+    }
 
-        .btn-delete {
-            background: rgba(239, 68, 68, 0.1);
-            border: 1px solid rgba(239, 68, 68, 0.3);
-            color: var(--danger);
-            padding: 8px;
-            border-radius: 6px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: 0.2s;
-        }
+    .metric-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+    }
 
-        .btn-delete:hover {
-            background: var(--danger);
-            color: #fff;
-        }
+    .metric-icon {
+        width: 22px;
+        height: 22px;
+        stroke-width: 2;
+        fill: none;
+    }
 
-        .hidden { display: none !important; }
-    </style>
+    .metric-card.total .metric-icon {
+        stroke: var(--purple-light);
+    }
+
+    .metric-card.abertas .metric-icon {
+        stroke: var(--card-abertas-color);
+    }
+
+    .metric-card.andamento .metric-icon {
+        stroke: var(--card-andamento-color);
+    }
+
+    .metric-card.resolvidas .metric-icon {
+        stroke: var(--card-resolvidas-color);
+    }
+
+    .metric-value {
+        font-size: 28px;
+        font-weight: 800;
+        margin-bottom: 4px;
+    }
+
+    .metric-label {
+        font-size: 13px;
+        color: var(--text-muted);
+        font-weight: 600;
+    }
+
+    .section-card {
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 14px;
+        padding: 24px;
+        min-height: 250px;
+    }
+
+    .section-card h3 {
+        font-size: 18px;
+        margin-bottom: 20px;
+    }
+
+    .checkbox-group {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        background-color: var(--input-bg);
+        border: 1px solid var(--input-border);
+        border-radius: 8px;
+        padding: 14px;
+    }
+
+    .checkbox-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 14px;
+        color: var(--text-main);
+        cursor: pointer;
+    }
+
+    .checkbox-item input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+        accent-color: var(--purple-primary);
+        cursor: pointer;
+    }
+
+    .empty-state {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 180px;
+        color: var(--text-muted);
+        font-size: 14px;
+    }
+
+    .item-ocorrencia {
+        background: var(--input-bg);
+        border: 1px solid var(--input-border);
+        border-radius: 10px;
+        padding: 16px;
+        margin-bottom: 12px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+    }
+
+    .action-group {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .btn-delete {
+        background: rgba(239, 68, 68, 0.1);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        color: var(--danger);
+        padding: 8px;
+        border-radius: 6px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: 0.2s;
+    }
+
+    .btn-delete:hover {
+        background: var(--danger);
+        color: #fff;
+    }
+
+    .hidden {
+        display: none !important;
+    }
+</style>
+```
+
 </head>
+
 <body>
 
-    <!-- 1. TELA DE AUTENTICAÇÃO -->
-    <div id="auth-screen" class="auth-container">
-        <div class="brand-icon">
-            <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-        </div>
-        <h1 class="brand-title">Dark Ocorrência</h1>
-        <p class="brand-subtitle">Sistema de Ocorrências Escolares</p>
+```
+<!-- =========================
+     TELA DE AUTENTICAÇÃO
+========================= -->
 
-        <div class="auth-card">
-            <div class="tab-switcher">
-                <button class="tab-btn active" id="tab-login" onclick="switchTab('login')">Entrar</button>
-                <button class="tab-btn" id="tab-register" onclick="switchTab('register')">Cadastrar</button>
-            </div>
+<div id="auth-screen" class="auth-container">
 
-            <!-- Login -->
-            <form id="form-login" onsubmit="handleAuth(event)">
-                <div class="form-group">
-                    <label>E-mail (Gmail ou Servidor Público)</label>
-                    <input type="email" id="login-email" class="input-control" placeholder="usuario@gmail.com ou @gov.br" required>
-                </div>
-                <div class="form-group">
-                    <label>Senha</label>
-                    <input type="password" id="login-password" class="input-control" placeholder="Sua senha" required>
-                </div>
-                <button type="submit" class="btn-submit">Entrar</button>
-            </form>
-
-            <!-- Cadastro -->
-            <form id="form-register" class="hidden" onsubmit="handleAuth(event)">
-                <!-- NOME E SOBRENOME SEPARADOS -->
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Nome *</label>
-                        <input type="text" id="reg-firstname" class="input-control" placeholder="Ex: Pedro" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Sobrenome *</label>
-                        <input type="text" id="reg-lastname" class="input-control" placeholder="Ex: Santos" required>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>Cargo / Função</label>
-                    <select id="reg-role" class="input-control" required>
-                        <option value="funcionario">Funcionário (Apenas Lançar)</option>
-                        <option value="professor">Professor (Lançar e Visualizar)</option>
-                        <option value="diretor">Diretor / Admin (Acesso Total)</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>E-mail (Gmail ou Servidor Público)</label>
-                    <input type="email" id="reg-email" class="input-control" placeholder="usuario@gmail.com ou @gov.br" required>
-                </div>
-                <div class="form-group">
-                    <label>Senha Segura *</label>
-                    <div class="password-wrapper">
-                        <input type="password" id="reg-password" class="input-control"
-                               placeholder="Mínimo 6 caracteres e 1 caractere especial"
-                               minlength="6"
-                               required>
-                        <button type="button" class="btn-show-password" onclick="mostrarSenhaRegistro()" aria-label="Mostrar senha" title="Mostrar senha">
-                            <svg id="icon-show-password" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/>
-                                <circle cx="12" cy="12" r="3"/>
-                            </svg>
-                        </button>
-                    </div>
-                    <span class="password-hint">A senha deve ter no mínimo 6 caracteres e pelo menos 1 caractere especial (ex.: ! @ # $ %).</span>
-                </div>
-                <button type="submit" class="btn-submit">Criar Conta</button>
-            </form>
-        </div>
+    <div class="brand-icon">
+        <svg viewBox="0 0 24 24">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        </svg>
     </div>
 
-    <!-- 2. DASHBOARD / PAINEL DO USUÁRIO -->
-    <div id="app-screen" class="app-layout hidden">
-        
-        <!-- Sidebar Navigation -->
-        <aside class="sidebar">
+    <h1 class="brand-title">Dark Ocorrência</h1>
+    <p class="brand-subtitle">Sistema de Ocorrências Escolares</p>
+
+    <div class="auth-card">
+
+        <div class="tab-switcher">
+            <button class="tab-btn active" id="tab-login" onclick="switchTab('login')">
+                Entrar
+            </button>
+
+            <button class="tab-btn" id="tab-register" onclick="switchTab('register')">
+                Cadastrar
+            </button>
+        </div>
+
+        <!-- =========================
+             LOGIN
+        ========================= -->
+
+        <form id="form-login" onsubmit="handleAuth(event)">
+
+            <div class="form-group">
+                <label>E-mail (Gmail ou Servidor Público)</label>
+
+                <input
+                    type="email"
+                    id="login-email"
+                    class="input-control"
+                    placeholder="usuario@gmail.com ou @gov.br"
+                    autocomplete="username"
+                    required
+                >
+            </div>
+
+            <div class="form-group">
+
+                <label>Senha</label>
+
+                <div class="password-wrapper">
+
+                    <input
+                        type="password"
+                        id="login-password"
+                        class="input-control"
+                        placeholder="Digite sua senha"
+                        autocomplete="current-password"
+                        required
+                    >
+
+                    <!-- BOTÃO MOSTRAR/OCULTAR LOGIN -->
+                    <button
+                        type="button"
+                        class="btn-show-password"
+                        onclick="mostrarSenhaLogin()"
+                        aria-label="Mostrar senha"
+                        title="Mostrar senha"
+                    >
+                        <svg
+                            id="icon-login-password"
+                            width="18"
+                            height="18"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                        >
+                            <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/>
+                            <circle cx="12" cy="12" r="3"/>
+                        </svg>
+                    </button>
+
+                </div>
+
+                <span class="password-hint">
+                    Digite o e-mail e a senha cadastrados.
+                </span>
+
+            </div>
+
+            <button type="submit" class="btn-submit">
+                Entrar
+            </button>
+
+        </form>
+
+        <!-- =========================
+             CADASTRO
+        ========================= -->
+
+        <form id="form-register" class="hidden" onsubmit="handleAuth(event)">
+
+            <div class="form-row">
+
+                <div class="form-group">
+                    <label>Nome *</label>
+
+                    <input
+                        type="text"
+                        id="reg-firstname"
+                        class="input-control"
+                        placeholder="Ex: Pedro"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label>Sobrenome *</label>
+
+                    <input
+                        type="text"
+                        id="reg-lastname"
+                        class="input-control"
+                        placeholder="Ex: Santos"
+                        required
+                    >
+                </div>
+
+            </div>
+
+            <div class="form-group">
+
+                <label>Cargo / Função</label>
+
+                <select id="reg-role" class="input-control" required>
+                    <option value="funcionario">
+                        Funcionário (Apenas Lançar)
+                    </option>
+
+                    <option value="professor">
+                        Professor (Lançar e Visualizar)
+                    </option>
+
+                    <option value="diretor">
+                        Diretor / Admin (Acesso Total)
+                    </option>
+                </select>
+
+            </div>
+
+            <div class="form-group">
+
+                <label>E-mail (Gmail ou Servidor Público)</label>
+
+                <input
+                    type="email"
+                    id="reg-email"
+                    class="input-control"
+                    placeholder="usuario@gmail.com ou @gov.br"
+                    autocomplete="email"
+                    required
+                >
+
+            </div>
+
+            <div class="form-group">
+
+                <label>Senha Segura *</label>
+
+                <div class="password-wrapper">
+
+                    <input
+                        type="password"
+                        id="reg-password"
+                        class="input-control"
+                        placeholder="Mínimo 6 caracteres e 1 caractere especial"
+                        minlength="6"
+                        autocomplete="new-password"
+                        required
+                    >
+
+                    <button
+                        type="button"
+                        class="btn-show-password"
+                        onclick="mostrarSenhaRegistro()"
+                        aria-label="Mostrar senha"
+                        title="Mostrar senha"
+                    >
+
+                        <svg
+                            id="icon-show-password"
+                            width="18"
+                            height="18"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                        >
+                            <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/>
+                            <circle cx="12" cy="12" r="3"/>
+                        </svg>
+
+                    </button>
+
+                </div>
+
+                <span class="password-hint">
+                    A senha deve ter no mínimo 6 caracteres e pelo menos 1 caractere especial (ex.: ! @ # $ %).
+                </span>
+
+            </div>
+
+            <button type="submit" class="btn-submit">
+                Criar Conta
+            </button>
+
+        </form>
+
+    </div>
+</div>
+
+
+<!-- =========================
+     DASHBOARD
+========================= -->
+
+<div id="app-screen" class="app-layout hidden">
+
+    <aside class="sidebar">
+
+        <div>
+
+            <div class="sidebar-brand">
+
+                <div class="sidebar-brand-icon">
+
+                    <svg
+                        width="20"
+                        height="20"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="#a78bfa"
+                        stroke-width="2"
+                    >
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                    </svg>
+
+                </div>
+
+                <div class="sidebar-brand-text">
+                    <h3>Dark</h3>
+                    <span>OCORRÊNCIA</span>
+                </div>
+
+            </div>
+
+            <ul class="nav-list">
+
+                <li
+                    class="nav-item active"
+                    id="nav-dash"
+                    onclick="navegar('dashboard')"
+                >
+                    <svg
+                        width="18"
+                        height="18"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                    >
+                        <rect x="3" y="3" width="7" height="7"/>
+                        <rect x="14" y="3" width="7" height="7"/>
+                        <rect x="14" y="14" width="7" height="7"/>
+                        <rect x="3" y="14" width="7" height="7"/>
+                    </svg>
+
+                    Dashboard
+                </li>
+
+                <li
+                    class="nav-item"
+                    id="nav-oc"
+                    onclick="navegar('ocorrencias')"
+                >
+                    <svg
+                        width="18"
+                        height="18"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                    >
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                        <polyline points="14 2 14 8 20 8"/>
+                        <line x1="16" y1="13" x2="8" y2="13"/>
+                        <line x1="16" y1="17" x2="8" y2="17"/>
+                    </svg>
+
+                    Ocorrências
+                </li>
+
+            </ul>
+
+        </div>
+
+        <div
+            class="sidebar-user"
+            onclick="logout()"
+            style="cursor: pointer;"
+            title="Clique para sair"
+        >
+
+            <div class="avatar" id="user-avatar">P</div>
+
+            <div class="user-details">
+                <h4 id="user-name">Pedro Santos</h4>
+                <span id="user-role">Admin</span>
+            </div>
+
+        </div>
+
+    </aside>
+
+
+    <main class="main-content">
+
+        <div class="top-bar">
+
             <div>
-                <div class="sidebar-brand">
-                    <div class="sidebar-brand-icon">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                    </div>
-                    <div class="sidebar-brand-text">
-                        <h3>Dark</h3>
-                        <span>OCORRÊNCIA</span>
-                    </div>
-                </div>
 
-                <ul class="nav-list">
-                    <li class="nav-item active" id="nav-dash" onclick="navegar('dashboard')">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-                        Dashboard
-                    </li>
-                    <li class="nav-item" id="nav-oc" onclick="navegar('ocorrencias')">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-                        Ocorrências
-                    </li>
-                </ul>
+                <h1 id="page-title">
+                    Dashboard
+                </h1>
+
+                <p id="welcome-msg">
+                    Bem-vindo(a), pedro
+                </p>
+
             </div>
 
-            <!-- Perfil do Usuário na Sidebar -->
-            <div class="sidebar-user" onclick="logout()" style="cursor: pointer;" title="Clique para sair">
-                <div class="avatar" id="user-avatar">P</div>
-                <div class="user-details">
-                    <h4 id="user-name">Pedro Santos</h4>
-                    <span id="user-role">Admin</span>
-                </div>
-            </div>
-        </aside>
+            <div class="role-badge">
 
-        <!-- Main Workspace -->
-        <main class="main-content">
-            
-            <div class="top-bar">
-                <div>
-                    <h1 id="page-title">Dashboard</h1>
-                    <p id="welcome-msg">Bem-vindo(a), pedro</p>
-                </div>
-                <div class="role-badge">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                    <span id="header-role">Admin</span>
-                </div>
+                <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                >
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                    <circle cx="12" cy="7" r="4"/>
+                </svg>
+
+                <span id="header-role">
+                    Admin
+                </span>
+
             </div>
 
-            <!-- VISÃO 1: DASHBOARD -->
-            <div id="view-dashboard">
-                <!-- Métricas -->
-                <div class="metrics-grid">
-                    <div class="metric-card total">
-                        <div class="metric-card-header">
-                            <svg class="metric-icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/></svg>
-                        </div>
-                        <div class="metric-value" id="count-total">0</div>
-                        <div class="metric-label">Total</div>
+        </div>
+
+
+        <!-- DASHBOARD -->
+
+        <div id="view-dashboard">
+
+            <div class="metrics-grid">
+
+                <div class="metric-card total">
+
+                    <div class="metric-card-header">
+
+                        <svg class="metric-icon" viewBox="0 0 24 24">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                            <polyline points="14 2 14 8 20 8"/>
+                        </svg>
+
+                        <svg
+                            width="16"
+                            height="16"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                        >
+                            <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
+                        </svg>
+
                     </div>
 
-                    <div class="metric-card abertas">
-                        <div class="metric-card-header">
-                            <svg class="metric-icon" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/></svg>
-                        </div>
-                        <div class="metric-value" id="count-abertas">0</div>
-                        <div class="metric-label">Abertas</div>
-                    </div>
+                    <div class="metric-value" id="count-total">0</div>
+                    <div class="metric-label">Total</div>
 
-                    <div class="metric-card andamento">
-                        <div class="metric-card-header">
-                            <svg class="metric-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/></svg>
-                        </div>
-                        <div class="metric-value" id="count-andamento">0</div>
-                        <div class="metric-label">Em Andamento</div>
-                    </div>
-
-                    <div class="metric-card resolvidas">
-                        <div class="metric-card-header">
-                            <svg class="metric-icon" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/></svg>
-                        </div>
-                        <div class="metric-value" id="count-resolvidas">0</div>
-                        <div class="metric-label">Resolvidas</div>
-                    </div>
                 </div>
 
-                <!-- Tabela de Ocorrências Recentes -->
-                <div class="section-card">
-                    <h3>Ocorrências Recentes</h3>
-                    <div id="recent-list">
-                        <div class="empty-state">Nenhuma ocorrência registrada</div>
+
+                <div class="metric-card abertas">
+
+                    <div class="metric-card-header">
+
+                        <svg class="metric-icon" viewBox="0 0 24 24">
+                            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                            <line x1="12" y1="9" x2="12" y2="13"/>
+                            <line x1="12" y1="17" x2="12.01" y2="17"/>
+                        </svg>
+
+                        <svg
+                            width="16"
+                            height="16"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                        >
+                            <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
+                        </svg>
+
                     </div>
+
+                    <div class="metric-value" id="count-abertas">0</div>
+                    <div class="metric-label">Abertas</div>
+
                 </div>
+
+
+                <div class="metric-card andamento">
+
+                    <div class="metric-card-header">
+
+                        <svg class="metric-icon" viewBox="0 0 24 24">
+                            <circle cx="12" cy="12" r="10"/>
+                            <polyline points="12 6 12 12 16 14"/>
+                        </svg>
+
+                        <svg
+                            width="16"
+                            height="16"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                        >
+                            <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
+                        </svg>
+
+                    </div>
+
+                    <div class="metric-value" id="count-andamento">0</div>
+                    <div class="metric-label">Em Andamento</div>
+
+                </div>
+
+
+                <div class="metric-card resolvidas">
+
+                    <div class="metric-card-header">
+
+                        <svg class="metric-icon" viewBox="0 0 24 24">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                            <polyline points="22 4 12 14.01 9 11.01"/>
+                        </svg>
+
+                        <svg
+                            width="16"
+                            height="16"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                        >
+                            <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
+                        </svg>
+
+                    </div>
+
+                    <div class="metric-value" id="count-resolvidas">0</div>
+                    <div class="metric-label">Resolvidas</div>
+
+                </div>
+
             </div>
 
-            <!-- VISÃO 2: GERENCIAR/LANÇAR OCORRÊNCIAS -->
-            <div id="view-ocorrencias" class="hidden">
-                <div class="section-card">
-                    <h3>Lançar Nova Ocorrência</h3>
-                    <form onsubmit="cadastrarOcorrencia(event)">
-                        
+
+            <div class="section-card">
+
+                <h3>
+                    Ocorrências Recentes
+                </h3>
+
+                <div id="recent-list">
+
+                    <div class="empty-state">
+                        Nenhuma ocorrência registrada
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- OCORRÊNCIAS -->
+
+        <div id="view-ocorrencias" class="hidden">
+
+            <div class="section-card">
+
+                <h3>
+                    Lançar Nova Ocorrência
+                </h3>
+
+                <form onsubmit="cadastrarOcorrencia(event)">
+
+                    <div class="form-group">
+
+                        <label>
+                            Nome do Aluno
+                        </label>
+
+                        <input
+                            type="text"
+                            id="oc-aluno"
+                            class="input-control"
+                            placeholder="Ex: João Pedro"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="form-row">
+
                         <div class="form-group">
-                            <label>Nome do Aluno</label>
-                            <input type="text" id="oc-aluno" class="input-control" placeholder="Ex: João Pedro" required>
+
+                            <label>
+                                Série / Turma
+                            </label>
+
+                            <select
+                                id="oc-serie"
+                                class="input-control"
+                                required
+                            >
+
+                                <option value="" disabled selected>
+                                    Selecione a Turma...
+                                </option>
+
+                                <optgroup label="3º Ano">
+                                    <option value="3º Tec">3º Tec</option>
+                                    <option value="3º A">3º A</option>
+                                    <option value="3º B">3º B</option>
+                                    <option value="3º C">3º C</option>
+                                    <option value="3º D">3º D</option>
+                                </optgroup>
+
+                                <optgroup label="2º Ano">
+                                    <option value="2º Tec">2º Tec</option>
+                                    <option value="2º A">2º A</option>
+                                    <option value="2º B">2º B</option>
+                                    <option value="2º C">2º C</option>
+                                    <option value="2º D">2º D</option>
+                                </optgroup>
+
+                                <optgroup label="1º Ano">
+                                    <option value="1º A">1º A</option>
+                                    <option value="1º B">1º B</option>
+                                    <option value="1º C">1º C</option>
+                                    <option value="1º D">1º D</option>
+                                </optgroup>
+
+                            </select>
+
                         </div>
 
-                        <!-- SELETOR DE TURMAS EM BALÃO (SELECT) -->
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>Série / Turma</label>
-                                <select id="oc-serie" class="input-control" required>
-                                    <option value="" disabled selected>Selecione a Turma...</option>
-                                    
-                                    <!-- 3º Anos -->
-                                    <optgroup label="3º Ano">
-                                        <option value="3º Tec">3º Tec</option>
-                                        <option value="3º A">3º A</option>
-                                        <option value="3º B">3º B</option>
-                                        <option value="3º C">3º C</option>
-                                        <option value="3º D">3º D</option>
-                                    </optgroup>
-
-                                    <!-- 2º Anos -->
-                                    <optgroup label="2º Ano">
-                                        <option value="2º Tec">2º Tec</option>
-                                        <option value="2º A">2º A</option>
-                                        <option value="2º B">2º B</option>
-                                        <option value="2º C">2º C</option>
-                                        <option value="2º D">2º D</option>
-                                    </optgroup>
-
-                                    <!-- 1º Anos -->
-                                    <optgroup label="1º Ano">
-                                        <option value="1º A">1º A</option>
-                                        <option value="1º B">1º B</option>
-                                        <option value="1º C">1º C</option>
-                                        <option value="1º D">1º D</option>
-                                    </optgroup>
-                                </select>
-                            </div>
-
-                            <div class="form-group">
-                                <label>Data do Lançamento</label>
-                                <input type="date" id="oc-data" class="input-control" required>
-                            </div>
-                        </div>
-
-                        <!-- Lista de Atitudes Inadequadas da Imagem -->
-                        <div class="form-group">
-                            <label>Atitudes Inadequadas pelo Aluno:</label>
-                            <div class="checkbox-group">
-                                <label class="checkbox-item">
-                                    <input type="checkbox" name="atitudes" value="Desrespeitar os professores, funcionários e colegas de classe">
-                                    Desrespeitar os professores, funcionários e colegas de classe;
-                                </label>
-                                <label class="checkbox-item">
-                                    <input type="checkbox" name="atitudes" value="Desobedecer e tumultuar a aula e a rotina escolar">
-                                    Desobedecer e tumultuar a aula e a rotina escolar;
-                                </label>
-                                <label class="checkbox-item">
-                                    <input type="checkbox" name="atitudes" value="Provocação voluntária">
-                                    Provocação voluntária;
-                                </label>
-                                <label class="checkbox-item">
-                                    <input type="checkbox" name="atitudes" value="Agredir de forma verbal e física os colegas, professores e funcionários">
-                                    Agredir de forma verbal e física os colegas, professores e funcionários;
-                                </label>
-                                <label class="checkbox-item">
-                                    <input type="checkbox" name="atitudes" value="Destruir patrimônio público">
-                                    Destruir patrimônio público;
-                                </label>
-                                <label class="checkbox-item">
-                                    <input type="checkbox" name="atitudes" value="Destruir e perder material didático">
-                                    Destruir e perder material didático;
-                                </label>
-                                <label class="checkbox-item">
-                                    <input type="checkbox" name="atitudes" value="Uso indevido do celular e aparelhos eletrônicos">
-                                    Uso indevido do celular e aparelhos eletrônicos;
-                                </label>
-                            </div>
-                        </div>
 
                         <div class="form-group">
-                            <label>Descrição Adicional <span style="color:var(--text-muted); font-weight:normal;">(Opcional)</span></label>
-                            <textarea id="oc-desc" class="input-control" rows="4" placeholder="Detalhes adicionais da ocorrência..."></textarea>
+
+                            <label>
+                                Data do Lançamento
+                            </label>
+
+                            <input
+                                type="date"
+                                id="oc-data"
+                                class="input-control"
+                                required
+                            >
+
                         </div>
-                        <button type="submit" class="btn-submit">+ Lançar Registro</button>
-                    </form>
-                </div>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label>
+                            Atitudes Inadequadas pelo Aluno:
+                        </label>
+
+                        <div class="checkbox-group">
+
+                            <label class="checkbox-item">
+                                <input
+                                    type="checkbox"
+                                    name="atitudes"
+                                    value="Desrespeitar os professores, funcionários e colegas de classe"
+                                >
+                                Desrespeitar os professores, funcionários e colegas de classe;
+                            </label>
+
+                            <label class="checkbox-item">
+                                <input
+                                    type="checkbox"
+                                    name="atitudes"
+                                    value="Desobedecer e tumultuar a aula e a rotina escolar"
+                                >
+                                Desobedecer e tumultuar a aula e a rotina escolar;
+                            </label>
+
+                            <label class="checkbox-item">
+                                <input
+                                    type="checkbox"
+                                    name="atitudes"
+                                    value="Provocação voluntária"
+                                >
+                                Provocação voluntária;
+                            </label>
+
+                            <label class="checkbox-item">
+                                <input
+                                    type="checkbox"
+                                    name="atitudes"
+                                    value="Agredir de forma verbal e física os colegas, professores e funcionários"
+                                >
+                                Agredir de forma verbal e física os colegas, professores e funcionários;
+                            </label>
+
+                            <label class="checkbox-item">
+                                <input
+                                    type="checkbox"
+                                    name="atitudes"
+                                    value="Destruir patrimônio público"
+                                >
+                                Destruir patrimônio público;
+                            </label>
+
+                            <label class="checkbox-item">
+                                <input
+                                    type="checkbox"
+                                    name="atitudes"
+                                    value="Destruir e perder material didático"
+                                >
+                                Destruir e perder material didático;
+                            </label>
+
+                            <label class="checkbox-item">
+                                <input
+                                    type="checkbox"
+                                    name="atitudes"
+                                    value="Uso indevido do celular e aparelhos eletrônicos"
+                                >
+                                Uso indevido do celular e aparelhos eletrônicos;
+                            </label>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label>
+                            Descrição Adicional
+                            <span style="color:var(--text-muted); font-weight:normal;">
+                                (Opcional)
+                            </span>
+                        </label>
+
+                        <textarea
+                            id="oc-desc"
+                            class="input-control"
+                            rows="4"
+                            placeholder="Detalhes adicionais da ocorrência..."
+                        ></textarea>
+
+                    </div>
+
+                    <button
+                        type="submit"
+                        class="btn-submit"
+                    >
+                        + Lançar Registro
+                    </button>
+
+                </form>
+
             </div>
 
-        </main>
-    </div>
+        </div>
 
-    <script>
-        let currentUser = null;
-        let occurrences = [];
+    </main>
 
-        // Senhas fáceis/genéricas proibidas no cadastro
-        const senhasProibidas = [
-            "123456", "12345678", "123456789", "senha", "admin", "111111", 
-            "000000", "qwerty", "123321", "mudar123", "escola", "12345"
-        ];
+</div>
 
-        // Validador de E-mail: Permite @gmail.com OU e-mails institucionais/públicos (.gov.br, .edu.br, etc.)
-        function validarEmailPermitido(email) {
-            const e = email.toLowerCase().trim();
-            const eServidorPublico = e.endsWith('.gov.br') || e.endsWith('.edu.br') || e.includes('servidor') || e.includes('funcionario');
-            const eGmail = e.endsWith('@gmail.com');
-            
-            return eGmail || eServidorPublico;
+
+<script>
+
+    /* =========================
+       VARIÁVEIS
+    ========================= */
+
+    let currentUser = null;
+    let occurrences = [];
+
+    /*
+     * CONTAS CADASTRADAS
+     *
+     * Agora o login realmente verifica
+     * e-mail + senha.
+     */
+    let usuarios = [];
+
+
+    /* =========================
+       SENHAS PROIBIDAS
+    ========================= */
+
+    const senhasProibidas = [
+        "123456",
+        "12345678",
+        "123456789",
+        "senha",
+        "admin",
+        "111111",
+        "000000",
+        "qwerty",
+        "123321",
+        "mudar123",
+        "escola",
+        "12345"
+    ];
+
+
+    /* =========================
+       VALIDAÇÃO DE E-MAIL
+    ========================= */
+
+    function validarEmailPermitido(email) {
+
+        const e = email.toLowerCase().trim();
+
+        const eServidorPublico =
+            e.endsWith('.gov.br') ||
+            e.endsWith('.edu.br') ||
+            e.includes('servidor') ||
+            e.includes('funcionario');
+
+        const eGmail =
+            e.endsWith('@gmail.com');
+
+        return eGmail || eServidorPublico;
+    }
+
+
+    /* =========================
+       VALIDAÇÃO DE SENHA
+    ========================= */
+
+    function validarSenha(password) {
+
+        if (password.length < 6) {
+            return {
+                valido: false,
+                mensagem: 'A senha deve conter no mínimo 6 caracteres!'
+            };
         }
 
-        // Definir a data atual padrão no campo de data
-        document.addEventListener('DOMContentLoaded', () => {
-            const today = new Date().toISOString().split('T')[0];
-            document.getElementById('oc-data').value = today;
-        });
+        const possuiCaractereEspecial =
+            /[^A-Za-z0-9]/.test(password);
 
-        function switchTab(mode) {
-            document.getElementById('tab-login').classList.toggle('active', mode === 'login');
-            document.getElementById('tab-register').classList.toggle('active', mode === 'register');
-            document.getElementById('form-login').classList.toggle('hidden', mode !== 'login');
-            document.getElementById('form-register').classList.toggle('hidden', mode !== 'register');
+        if (!possuiCaractereEspecial) {
+            return {
+                valido: false,
+                mensagem: 'A senha deve conter pelo menos 1 caractere especial, como ! @ # $ %.'
+            };
         }
 
-        function mostrarSenhaRegistro() {
-            const passwordInput = document.getElementById('reg-password');
-            const button = document.querySelector('.btn-show-password');
-            const icon = document.getElementById('icon-show-password');
-
-            if (passwordInput.type === 'password') {
-                passwordInput.type = 'text';
-                button.setAttribute('aria-label', 'Ocultar senha');
-                button.setAttribute('title', 'Ocultar senha');
-                icon.innerHTML = `
-                    <path d="M3 3l18 18"/>
-                    <path d="M10.58 10.58a2 2 0 0 0 2.83 2.83"/>
-                    <path d="M9.88 5.09A10.94 10.94 0 0 1 12 5c6.5 0 10 7 10 7a18.23 18.23 0 0 1-3.17 3.84"/>
-                    <path d="M6.61 6.61C3.93 8.28 2 12 2 12s3.5 7 10 7a9.84 9.84 0 0 0 3.19-.53"/>
-                `;
-            } else {
-                passwordInput.type = 'password';
-                button.setAttribute('aria-label', 'Mostrar senha');
-                button.setAttribute('title', 'Mostrar senha');
-                icon.innerHTML = `
-                    <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/>
-                    <circle cx="12" cy="12" r="3"/>
-                `;
-            }
+        if (senhasProibidas.includes(password.toLowerCase())) {
+            return {
+                valido: false,
+                mensagem: 'Esta senha é muito simples e genérica! Crie uma senha mais segura.'
+            };
         }
 
-        function handleAuth(e) {
-            e.preventDefault();
-            const isRegister = !document.getElementById('form-register').classList.contains('hidden');
+        return {
+            valido: true
+        };
+    }
 
-            if (isRegister) {
-                const firstName = document.getElementById('reg-firstname').value.trim();
-                const lastName = document.getElementById('reg-lastname').value.trim();
-                const role = document.getElementById('reg-role').value;
-                const email = document.getElementById('reg-email').value;
-                const password = document.getElementById('reg-password').value;
 
-                // 1. Validação Obrigatória de Nome e Sobrenome
-                if (!firstName || !lastName) {
-                    alert('Por favor, preencha o Nome e o Sobrenome obrigatoriamente!');
-                    return;
-                }
+    /* =========================
+       DATA ATUAL
+    ========================= */
 
-                // 2. Validação do Domínio do E-mail
-                if (!validarEmailPermitido(email)) {
-                    alert('Permitido apenas e-mails @gmail.com ou de funcionários públicos (.gov.br / .edu.br)!');
-                    return;
-                }
+    document.addEventListener('DOMContentLoaded', () => {
 
-                // 3. Validação de Senha: mínimo de 6 caracteres + caractere especial
-                if (password.length < 6) {
-                    alert('A senha deve conter no mínimo 6 caracteres!');
-                    return;
-                }
+        const today =
+            new Date().toISOString().split('T')[0];
 
-                const possuiCaractereEspecial = /[^A-Za-z0-9]/.test(password);
-                if (!possuiCaractereEspecial) {
-                    alert('A senha deve conter pelo menos 1 caractere especial, como ! @ # $ %.');
-                    return;
-                }
+        document.getElementById('oc-data').value = today;
 
-                if (senhasProibidas.includes(password.toLowerCase())) {
-                    alert('Esta senha é muito simples e genérica! Crie uma senha mais segura.');
-                    return;
-                }
+    });
 
-                const fullName = `${firstName} ${lastName}`;
-                currentUser = { name: fullName, role, email };
-            } else {
-                const email = document.getElementById('login-email').value;
 
-                // 1. Validação do E-mail no Login
-                if (!validarEmailPermitido(email)) {
-                    alert('Permitido apenas e-mails @gmail.com ou de funcionários públicos (.gov.br / .edu.br)!');
-                    return;
-                }
+    /* =========================
+       TROCAR ABA
+    ========================= */
 
-                const nameFromEmail = email.split('@')[0];
-                currentUser = { name: nameFromEmail, role: 'diretor', email };
-            }
+    function switchTab(mode) {
 
-            iniciarDashboard();
+        document
+            .getElementById('tab-login')
+            .classList
+            .toggle('active', mode === 'login');
+
+        document
+            .getElementById('tab-register')
+            .classList
+            .toggle('active', mode === 'register');
+
+        document
+            .getElementById('form-login')
+            .classList
+            .toggle('hidden', mode !== 'login');
+
+        document
+            .getElementById('form-register')
+            .classList
+            .toggle('hidden', mode !== 'register');
+
+    }
+
+
+    /* =========================
+       MOSTRAR/OCULTAR SENHA
+       LOGIN
+    ========================= */
+
+    function mostrarSenhaLogin() {
+
+        const passwordInput =
+            document.getElementById('login-password');
+
+        const button =
+            document.querySelector('#form-login .btn-show-password');
+
+        const icon =
+            document.getElementById('icon-login-password');
+
+
+        if (passwordInput.type === 'password') {
+
+            passwordInput.type = 'text';
+
+            button.setAttribute(
+                'aria-label',
+                'Ocultar senha'
+            );
+
+            button.setAttribute(
+                'title',
+                'Ocultar senha'
+            );
+
+            icon.innerHTML = `
+                <path d="M3 3l18 18"/>
+                <path d="M10.58 10.58a2 2 0 0 0 2.83 2.83"/>
+                <path d="M9.88 5.09A10.94 10.94 0 0 1 12 5c6.5 0 10 7 10 7a18.23 18.23 0 0 1-3.17 3.84"/>
+                <path d="M6.61 6.61C3.93 8.28 2 12 2 12s3.5 7 10 7a9.84 9.84 0 0 0 3.19-.53"/>
+            `;
+
+        } else {
+
+            passwordInput.type = 'password';
+
+            button.setAttribute(
+                'aria-label',
+                'Mostrar senha'
+            );
+
+            button.setAttribute(
+                'title',
+                'Mostrar senha'
+            );
+
+            icon.innerHTML = `
+                <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/>
+                <circle cx="12" cy="12" r="3"/>
+            `;
+
         }
 
-        function iniciarDashboard() {
-            document.getElementById('auth-screen').classList.add('hidden');
-            document.getElementById('app-screen').classList.remove('hidden');
+    }
 
-            const roleFormatted = currentUser.role === 'diretor' ? 'Admin' : currentUser.role;
 
-            document.getElementById('welcome-msg').innerText = `Bem-vindo(a), ${currentUser.name.toLowerCase()}`;
-            document.getElementById('user-name').innerText = currentUser.name;
-            document.getElementById('user-role').innerText = roleFormatted;
-            document.getElementById('header-role').innerText = roleFormatted;
-            document.getElementById('user-avatar').innerText = currentUser.name.charAt(0).toUpperCase();
+    /* =========================
+       MOSTRAR/OCULTAR SENHA
+       CADASTRO
+    ========================= */
 
-            atualizarInterface();
+    function mostrarSenhaRegistro() {
+
+        const passwordInput =
+            document.getElementById('reg-password');
+
+        const button =
+            document.querySelector('#form-register .btn-show-password');
+
+        const icon =
+            document.getElementById('icon-show-password');
+
+
+        if (passwordInput.type === 'password') {
+
+            passwordInput.type = 'text';
+
+            button.setAttribute(
+                'aria-label',
+                'Ocultar senha'
+            );
+
+            button.setAttribute(
+                'title',
+                'Ocultar senha'
+            );
+
+            icon.innerHTML = `
+                <path d="M3 3l18 18"/>
+                <path d="M10.58 10.58a2 2 0 0 0 2.83 2.83"/>
+                <path d="M9.88 5.09A10.94 10.94 0 0 1 12 5c6.5 0 10 7 10 7a18.23 18.23 0 0 1-3.17 3.84"/>
+                <path d="M6.61 6.61C3.93 8.28 2 12 2 12s3.5 7 10 7a9.84 9.84 0 0 1 3.19-.53"/>
+            `;
+
+        } else {
+
+            passwordInput.type = 'password';
+
+            button.setAttribute(
+                'aria-label',
+                'Mostrar senha'
+            );
+
+            button.setAttribute(
+                'title',
+                'Mostrar senha'
+            );
+
+            icon.innerHTML = `
+                <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/>
+                <circle cx="12" cy="12" r="3"/>
+            `;
+
         }
 
-        function logout() {
-            currentUser = null;
-            document.getElementById('app-screen').classList.add('hidden');
-            document.getElementById('auth-screen').classList.remove('hidden');
-        }
+    }
 
-        function navegar(aba) {
-            document.getElementById('nav-dash').classList.toggle('active', aba === 'dashboard');
-            document.getElementById('nav-oc').classList.toggle('active', aba === 'ocorrencias');
 
-            document.getElementById('view-dashboard').classList.toggle('hidden', aba !== 'dashboard');
-            document.getElementById('view-ocorrencias').classList.toggle('hidden', aba !== 'ocorrencias');
-            
-            document.getElementById('page-title').innerText = aba === 'dashboard' ? 'Dashboard' : 'Registrar Ocorrências';
-        }
+    /* =========================
+       AUTENTICAÇÃO
+    ========================= */
 
-        function cadastrarOcorrencia(e) {
-            e.preventDefault();
-            const aluno = document.getElementById('oc-aluno').value;
-            const serie = document.getElementById('oc-serie').value;
-            const data = document.getElementById('oc-data').value;
-            const desc = document.getElementById('oc-desc').value;
+    function handleAuth(e) {
 
-            if (!serie) {
-                alert('Por favor, selecione uma turma na lista!');
+        e.preventDefault();
+
+        const isRegister =
+            !document
+                .getElementById('form-register')
+                .classList
+                .contains('hidden');
+
+
+        /* =========================
+           CADASTRO
+        ========================= */
+
+        if (isRegister) {
+
+            const firstName =
+                document
+                    .getElementById('reg-firstname')
+                    .value
+                    .trim();
+
+            const lastName =
+                document
+                    .getElementById('reg-lastname')
+                    .value
+                    .trim();
+
+            const role =
+                document
+                    .getElementById('reg-role')
+                    .value;
+
+            const email =
+                document
+                    .getElementById('reg-email')
+                    .value
+                    .trim()
+                    .toLowerCase();
+
+            const password =
+                document
+                    .getElementById('reg-password')
+                    .value;
+
+
+            /* Nome */
+
+            if (!firstName || !lastName) {
+
+                alert(
+                    'Por favor, preencha o Nome e o Sobrenome obrigatoriamente!'
+                );
+
                 return;
             }
 
-            // Capturar atitudes selecionadas
-            const atitudesSelecionadas = Array.from(document.querySelectorAll('input[name="atitudes"]:checked'))
-                .map(cb => cb.value);
 
-            if (atitudesSelecionadas.length === 0 && !desc.trim()) {
-                alert('Selecione ao menos uma atitude ou escreva uma descrição adicional.');
+            /* E-mail */
+
+            if (!validarEmailPermitido(email)) {
+
+                alert(
+                    'Permitido apenas e-mails @gmail.com ou de funcionários públicos (.gov.br / .edu.br)!'
+                );
+
                 return;
             }
 
-            const tipoTexto = atitudesSelecionadas.length > 0 
-                ? atitudesSelecionadas.join('; ') 
+
+            /* Senha */
+
+            const resultadoSenha =
+                validarSenha(password);
+
+            if (!resultadoSenha.valido) {
+
+                alert(resultadoSenha.mensagem);
+
+                return;
+            }
+
+
+            /* Verificar e-mail duplicado */
+
+            const emailJaExiste =
+                usuarios.some(
+                    usuario => usuario.email === email
+                );
+
+            if (emailJaExiste) {
+
+                alert(
+                    'Este e-mail já possui uma conta cadastrada!'
+                );
+
+                return;
+            }
+
+
+            /* Criar usuário */
+
+            const fullName =
+                `${firstName} ${lastName}`;
+
+            const novoUsuario = {
+                name: fullName,
+                role: role,
+                email: email,
+                password: password
+            };
+
+
+            usuarios.push(novoUsuario);
+
+
+            alert(
+                'Conta criada com sucesso! Agora entre usando seu e-mail e sua senha.'
+            );
+
+
+            /* Limpar senha */
+
+            document.getElementById(
+                'reg-password'
+            ).value = '';
+
+
+            /* Ir para login */
+
+            document.getElementById(
+                'login-email'
+            ).value = email;
+
+            document.getElementById(
+                'login-password'
+            ).value = '';
+
+            switchTab('login');
+
+            return;
+        }
+
+
+        /* =========================
+           LOGIN
+        ========================= */
+
+        const email =
+            document
+                .getElementById('login-email')
+                .value
+                .trim()
+                .toLowerCase();
+
+        const password =
+            document
+                .getElementById('login-password')
+                .value;
+
+
+        /* Validar e-mail */
+
+        if (!validarEmailPermitido(email)) {
+
+            alert(
+                'Permitido apenas e-mails @gmail.com ou de funcionários públicos (.gov.br / .edu.br)!'
+            );
+
+            return;
+        }
+
+
+        /* Senha vazia */
+
+        if (!password) {
+
+            alert(
+                'Digite sua senha para entrar!'
+            );
+
+            return;
+        }
+
+
+        /* Procurar usuário */
+
+        const usuarioEncontrado =
+            usuarios.find(
+                usuario =>
+                    usuario.email === email
+            );
+
+
+        /*
+         * Se o e-mail não estiver cadastrado,
+         * não permite entrar.
+         */
+
+        if (!usuarioEncontrado) {
+
+            alert(
+                'E-mail não cadastrado! Crie uma conta primeiro.'
+            );
+
+            return;
+        }
+
+
+        /*
+         * Verificar e-mail + senha
+         */
+
+        if (usuarioEncontrado.password !== password) {
+
+            alert(
+                'E-mail ou senha incorretos!'
+            );
+
+            return;
+        }
+
+
+        /* Login aprovado */
+
+        currentUser = {
+            name: usuarioEncontrado.name,
+            role: usuarioEncontrado.role,
+            email: usuarioEncontrado.email
+        };
+
+
+        iniciarDashboard();
+
+    }
+
+
+    /* =========================
+       INICIAR DASHBOARD
+    ========================= */
+
+    function iniciarDashboard() {
+
+        document
+            .getElementById('auth-screen')
+            .classList
+            .add('hidden');
+
+        document
+            .getElementById('app-screen')
+            .classList
+            .remove('hidden');
+
+
+        const roleFormatted =
+            currentUser.role === 'diretor'
+                ? 'Admin'
+                : currentUser.role;
+
+
+        document.getElementById(
+            'welcome-msg'
+        ).innerText =
+            `Bem-vindo(a), ${currentUser.name.toLowerCase()}`;
+
+
+        document.getElementById(
+            'user-name'
+        ).innerText =
+            currentUser.name;
+
+
+        document.getElementById(
+            'user-role'
+        ).innerText =
+            roleFormatted;
+
+
+        document.getElementById(
+            'header-role'
+        ).innerText =
+            roleFormatted;
+
+
+        document.getElementById(
+            'user-avatar'
+        ).innerText =
+            currentUser.name
+                .charAt(0)
+                .toUpperCase();
+
+
+        atualizarInterface();
+
+    }
+
+
+    /* =========================
+       LOGOUT
+    ========================= */
+
+    function logout() {
+
+        currentUser = null;
+
+        document
+            .getElementById('app-screen')
+            .classList
+            .add('hidden');
+
+        document
+            .getElementById('auth-screen')
+            .classList
+            .remove('hidden');
+
+        document.getElementById(
+            'login-password'
+        ).value = '';
+
+    }
+
+
+    /* =========================
+       NAVEGAÇÃO
+    ========================= */
+
+    function navegar(aba) {
+
+        document
+            .getElementById('nav-dash')
+            .classList
+            .toggle(
+                'active',
+                aba === 'dashboard'
+            );
+
+        document
+            .getElementById('nav-oc')
+            .classList
+            .toggle(
+                'active',
+                aba === 'ocorrencias'
+            );
+
+
+        document
+            .getElementById('view-dashboard')
+            .classList
+            .toggle(
+                'hidden',
+                aba !== 'dashboard'
+            );
+
+        document
+            .getElementById('view-ocorrencias')
+            .classList
+            .toggle(
+                'hidden',
+                aba !== 'ocorrencias'
+            );
+
+
+        document.getElementById(
+            'page-title'
+        ).innerText =
+            aba === 'dashboard'
+                ? 'Dashboard'
+                : 'Registrar Ocorrências';
+
+    }
+
+
+    /* =========================
+       CADASTRAR OCORRÊNCIA
+    ========================= */
+
+    function cadastrarOcorrencia(e) {
+
+        e.preventDefault();
+
+        const aluno =
+            document
+                .getElementById('oc-aluno')
+                .value;
+
+        const serie =
+            document
+                .getElementById('oc-serie')
+                .value;
+
+        const data =
+            document
+                .getElementById('oc-data')
+                .value;
+
+        const desc =
+            document
+                .getElementById('oc-desc')
+                .value;
+
+
+        if (!serie) {
+
+            alert(
+                'Por favor, selecione uma turma na lista!'
+            );
+
+            return;
+        }
+
+
+        const atitudesSelecionadas =
+            Array.from(
+                document.querySelectorAll(
+                    'input[name="atitudes"]:checked'
+                )
+            ).map(
+                cb => cb.value
+            );
+
+
+        if (
+            atitudesSelecionadas.length === 0 &&
+            !desc.trim()
+        ) {
+
+            alert(
+                'Selecione ao menos uma atitude ou escreva uma descrição adicional.'
+            );
+
+            return;
+        }
+
+
+        const tipoTexto =
+            atitudesSelecionadas.length > 0
+                ? atitudesSelecionadas.join('; ')
                 : 'Outro';
 
-            // Formatar data para exibição (AAAA-MM-DD -> DD/MM/AAAA)
-            const [year, month, day] = data.split('-');
-            const dataFormatada = `${day}/${month}/${year}`;
 
-            occurrences.unshift({ 
-                id: Date.now(), 
-                aluno, 
-                serie,
-                data: dataFormatada,
-                tipo: tipoTexto, 
-                desc, 
-                autor: currentUser.name,
-                status: 'Pendente' 
-            });
+        const [year, month, day] =
+            data.split('-');
 
-            // Limpar formulário mantendo a data atual
-            document.getElementById('oc-aluno').value = '';
-            document.getElementById('oc-serie').value = '';
-            document.getElementById('oc-desc').value = '';
-            document.querySelectorAll('input[name="atitudes"]').forEach(cb => cb.checked = false);
+        const dataFormatada =
+            `${day}/${month}/${year}`;
 
-            alert('Ocorrência lançada!');
+
+        occurrences.unshift({
+
+            id: Date.now(),
+
+            aluno,
+
+            serie,
+
+            data: dataFormatada,
+
+            tipo: tipoTexto,
+
+            desc,
+
+            autor: currentUser.name,
+
+            status: 'Pendente'
+
+        });
+
+
+        document.getElementById(
+            'oc-aluno'
+        ).value = '';
+
+        document.getElementById(
+            'oc-serie'
+        ).value = '';
+
+        document.getElementById(
+            'oc-desc'
+        ).value = '';
+
+
+        document
+            .querySelectorAll(
+                'input[name="atitudes"]'
+            )
+            .forEach(
+                cb => cb.checked = false
+            );
+
+
+        alert(
+            'Ocorrência lançada!'
+        );
+
+
+        atualizarInterface();
+
+        navegar('dashboard');
+
+    }
+
+
+    /* =========================
+       EXCLUIR OCORRÊNCIA
+    ========================= */
+
+    function deletarOcorrencia(id) {
+
+        if (
+            confirm(
+                'Tem certeza de que deseja excluir esta ocorrência?'
+            )
+        ) {
+
+            occurrences =
+                occurrences.filter(
+                    o => o.id !== id
+                );
+
             atualizarInterface();
-            navegar('dashboard');
+
         }
 
-        function deletarOcorrencia(id) {
-            if (confirm('Tem certeza de que deseja excluir esta ocorrência?')) {
-                occurrences = occurrences.filter(o => o.id !== id);
-                atualizarInterface();
-            }
+    }
+
+
+    /* =========================
+       ATUALIZAR INTERFACE
+    ========================= */
+
+    function atualizarInterface() {
+
+        document.getElementById(
+            'count-total'
+        ).innerText =
+            occurrences.length;
+
+
+        document.getElementById(
+            'count-abertas'
+        ).innerText =
+            occurrences.filter(
+                o => o.status === 'Pendente'
+            ).length;
+
+
+        document.getElementById(
+            'count-andamento'
+        ).innerText =
+            occurrences.filter(
+                o => o.status === 'Em andamento'
+            ).length;
+
+
+        document.getElementById(
+            'count-resolvidas'
+        ).innerText =
+            occurrences.filter(
+                o => o.status === 'Resolvida'
+            ).length;
+
+
+        const recentContainer =
+            document.getElementById(
+                'recent-list'
+            );
+
+
+        if (
+            currentUser.role === 'funcionario'
+        ) {
+
+            recentContainer.innerHTML =
+                '<div class="empty-state">Acesso restrito ao histórico de ocorrências.</div>';
+
+            return;
         }
 
-        function atualizarInterface() {
-            document.getElementById('count-total').innerText = occurrences.length;
-            document.getElementById('count-abertas').innerText = occurrences.filter(o => o.status === 'Pendente').length;
-            document.getElementById('count-andamento').innerText = occurrences.filter(o => o.status === 'Em andamento').length;
-            document.getElementById('count-resolvidas').innerText = occurrences.filter(o => o.status === 'Resolvida').length;
 
-            const recentContainer = document.getElementById('recent-list');
-            
-            if (currentUser.role === 'funcionario') {
-                recentContainer.innerHTML = '<div class="empty-state">Acesso restrito ao histórico de ocorrências.</div>';
-                return;
-            }
+        if (occurrences.length === 0) {
 
-            if (occurrences.length === 0) {
-                recentContainer.innerHTML = '<div class="empty-state">Nenhuma ocorrência registrada</div>';
-                return;
-            }
+            recentContainer.innerHTML =
+                '<div class="empty-state">Nenhuma ocorrência registrada</div>';
 
-            recentContainer.innerHTML = '';
-            occurrences.forEach(oc => {
-                const item = document.createElement('div');
-                item.className = 'item-ocorrencia';
+            return;
+        }
 
-                let statusSelect = `<span style="font-size:12px; color:var(--purple-light);">${oc.status}</span>`;
-                
-                if (currentUser.role === 'diretor') {
-                    statusSelect = `
-                        <select onchange="alterarStatus(${oc.id}, this.value)" class="input-control" style="width:auto; padding:4px 8px; font-size:12px;">
-                            <option value="Pendente" ${oc.status === 'Pendente' ? 'selected':''}>Pendente</option>
-                            <option value="Em andamento" ${oc.status === 'Em andamento' ? 'selected':''}>Em andamento</option>
-                            <option value="Resolvida" ${oc.status === 'Resolvida' ? 'selected':''}>Resolvida</option>
-                        </select>
-                    `;
-                }
 
-                item.innerHTML = `
-                    <div>
-                        <strong>${oc.aluno}</strong> 
-                        <span style="font-size:12px; color:var(--purple-light); margin-left:8px;">${oc.serie}</span>
-                        <span style="font-size:12px; color:var(--text-muted); margin-left:8px;">📅 ${oc.data}</span>
-                        
-                        <p style="font-size:13px; color:var(--text-main); margin-top:6px;"><strong>Atitudes:</strong> ${oc.tipo}</p>
-                        ${oc.desc ? `<p style="font-size:13px; color:var(--text-muted); margin-top:2px;"><strong>Obs:</strong> ${oc.desc}</p>` : ''}
-                        
-                        <p style="font-size:12px; color:var(--purple-light); margin-top:6px;">✍️ <strong>Lançado por:</strong> ${oc.autor}</p>
-                    </div>
-                    <div class="action-group">
-                        ${statusSelect}
-                        <button class="btn-delete" onclick="deletarOcorrencia(${oc.id})" title="Excluir Ocorrência">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-                        </button>
-                    </div>
+        recentContainer.innerHTML = '';
+
+
+        occurrences.forEach(oc => {
+
+            const item =
+                document.createElement('div');
+
+            item.className =
+                'item-ocorrencia';
+
+
+            let statusSelect =
+                `<span style="font-size:12px; color:var(--purple-light);">${oc.status}</span>`;
+
+
+            if (
+                currentUser.role === 'diretor'
+            ) {
+
+                statusSelect = `
+                    <select
+                        onchange="alterarStatus(${oc.id}, this.value)"
+                        class="input-control"
+                        style="width:auto; padding:4px 8px; font-size:12px;"
+                    >
+
+                        <option
+                            value="Pendente"
+                            ${oc.status === 'Pendente' ? 'selected' : ''}
+                        >
+                            Pendente
+                        </option>
+
+                        <option
+                            value="Em andamento"
+                            ${oc.status === 'Em andamento' ? 'selected' : ''}
+                        >
+                            Em andamento
+                        </option>
+
+                        <option
+                            value="Resolvida"
+                            ${oc.status === 'Resolvida' ? 'selected' : ''}
+                        >
+                            Resolvida
+                        </option>
+
+                    </select>
                 `;
-                recentContainer.appendChild(item);
-            });
+            }
+
+
+            item.innerHTML = `
+
+                <div>
+
+                    <strong>
+                        ${oc.aluno}
+                    </strong>
+
+                    <span
+                        style="font-size:12px; color:var(--purple-light); margin-left:8px;"
+                    >
+                        ${oc.serie}
+                    </span>
+
+                    <span
+                        style="font-size:12px; color:var(--text-muted); margin-left:8px;"
+                    >
+                        📅 ${oc.data}
+                    </span>
+
+
+                    <p
+                        style="font-size:13px; color:var(--text-main); margin-top:6px;"
+                    >
+                        <strong>Atitudes:</strong>
+                        ${oc.tipo}
+                    </p>
+
+
+                    ${
+                        oc.desc
+                            ? `
+                                <p
+                                    style="font-size:13px; color:var(--text-muted); margin-top:2px;"
+                                >
+                                    <strong>Obs:</strong>
+                                    ${oc.desc}
+                                </p>
+                            `
+                            : ''
+                    }
+
+
+                    <p
+                        style="font-size:12px; color:var(--purple-light); margin-top:6px;"
+                    >
+                        ✍️ <strong>Lançado por:</strong>
+                        ${oc.autor}
+                    </p>
+
+                </div>
+
+
+                <div class="action-group">
+
+                    ${statusSelect}
+
+                    <button
+                        class="btn-delete"
+                        onclick="deletarOcorrencia(${oc.id})"
+                        title="Excluir Ocorrência"
+                    >
+
+                        <svg
+                            width="16"
+                            height="16"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                        >
+                            <polyline points="3 6 5 6 21 6"/>
+                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                        </svg>
+
+                    </button>
+
+                </div>
+
+            `;
+
+
+            recentContainer.appendChild(item);
+
+        });
+
+    }
+
+
+    /* =========================
+       ALTERAR STATUS
+    ========================= */
+
+    function alterarStatus(id, novoStatus) {
+
+        const item =
+            occurrences.find(
+                o => o.id === id
+            );
+
+
+        if (item) {
+
+            item.status =
+                novoStatus;
+
+            atualizarInterface();
+
         }
 
-        function alterarStatus(id, novoStatus) {
-            const item = occurrences.find(o => o.id === id);
-            if (item) {
-                item.status = novoStatus;
-                atualizarInterface();
-            }
-        }
-    </script>
+    }
+
+</script>
+```
+
 </body>
 </html>
